@@ -1,5 +1,9 @@
-avr-gcc -mmcu=atmega328p -DF_CPU=16000000UL -Os \
-    -I. -DYOURNAME="\"Nathaniel Davis-Perez\"" \
-    -c homework1.c -o homework1.o
-avr-gcc -mmcu=atmega328p homework1.o ./libserial.a -o main.elf
-avr-objcopy -O ihex -R .eeprom main.elf main.hex
+### 1. Compile 
+
+> avr-gcc -mmcu=atmega328p -DF_CPU=16000000UL -Os -I. -DYOURNAME="\"Nathaniel Davis-Perez\"" -c homework1.c -o homework1.o
+
+> avr-gcc -mmcu=atmega328p homework1.o ./libserial.a -o main.elf
+
+### 2. Run Simulavr (terminal output)
+
+> simulavr -d atmega328 -f main.elf -W 0xC6,-
