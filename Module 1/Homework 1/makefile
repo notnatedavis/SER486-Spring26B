@@ -1,0 +1,5 @@
+LIBS = ./libserial.a
+
+RELEASE_OPTIMIZATION = Os
+
+USER_SETTINGS = -I ./ -DYOURNAME="Your Name"
