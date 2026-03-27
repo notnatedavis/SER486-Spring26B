@@ -53,3 +53,9 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Other shi (repo specific)
+.DS_Store
+*.DS_Store
+.DS_Store/
+*.DS_Store/
