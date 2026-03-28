@@ -1,0 +1,5 @@
+LIBS = 
+
+RELEASE_OPTIMIZATION = O0
+
+USER_SETTINGS = -I ./ -DYOURNAME="Nathaniel Davis-Perez"

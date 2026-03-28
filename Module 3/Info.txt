@@ -1,11 +1,9 @@
 Submit :
 
-- `.c` file + `makefile` w/ proper comments
-    - header comments
-    - all function comments
-    - all other comments
+- `main.c` # MAY ONLY INCLUDE `hw4lib.h` & `output.h`
+- `ouput.c`
 - screenshot of build log in terminal (no errors)
-- screenshot of AVRDUDE loading code
+- screenshot from PuTTy (might requiere lab [cant access])
 - link to yt vid of prog on sim vm ?
 
 Steps : 
