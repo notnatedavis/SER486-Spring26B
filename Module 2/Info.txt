@@ -40,7 +40,8 @@ Steps :
       loop toggling between 0 and 1 each time
 
   > make file handles the avr build pipeline with tools targets sources
-    and flags, compiling and setting up .hex (the file that gets flashed) and .elf (compiled hw2.c)
+    and flags, compiling and setting up .hex (the file that gets flashed) 
+    and .elf (compiled hw2.c)
 
   > the three watch expressions are the direct memory reads of the
     atmega328p  io register file 
