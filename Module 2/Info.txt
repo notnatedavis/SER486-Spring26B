@@ -22,6 +22,16 @@ Steps :
 3. Rebuild the code using the 'Release' profile (Ctrl+P , 'task BuildRelease' , 'Never Scan the Task Output for this task)
 4. Upload .hex image for relase code to google drive (found in bin/Relase sub-folder)
 
+  > sudo apt install simavr
+  > make clean
+  > make
+  > pkill simavr
+  > simavr -m atmega328p -f 16000000 --gdb bin/homework2.elf
+    * open vscode *
+  > `Ctrl+Shift+D` to open `Run and Debug panel`
+  > play `AVR simulavr` *requires adding config to launch.json*
+  > 
+
 Rubric :
 
 - Proper Toolchain (demonstrate)

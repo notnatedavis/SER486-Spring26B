@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build HEX",
+            "type": "shell",
+            "command": "make",
+            "args": ["clean", "&&", "make"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Launch simulavr",
+            "type": "shell",
+            "command": "simulavr",
+            "args": [
+                "--device", "atmega328",
+                "--clockfreq", "16000000",
+                "--gdbserver",
+                "--gdbport", "1234",
+                "${workspaceFolder}/bin/homework2.elf"
+            ],
+            "isBackground": true,
+            "problemMatcher": []
+        }
+    ]
+}

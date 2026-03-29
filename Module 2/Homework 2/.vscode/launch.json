@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "AVR simulavr Debug",
+            "type": "gdb",
+            "request": "attach",
+            "executable": "${workspaceFolder}/bin/homework2.elf",
+            "target": ":1234",
+            "remote": true,
+            "cwd": "${workspaceFolder}",
+            "gdbpath": "avr-gdb",
+            "autorun": [
+                "display *(unsigned char*)0x24",
+                "display *(unsigned char*)0x25"
+            ]
+        }
+    ]
+}
