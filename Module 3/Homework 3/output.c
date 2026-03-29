@@ -112,21 +112,40 @@ void writestr(char * str)
 * STUDENT CODE BELOW THIS POINT
 *************************************************************/
 
+/********************************************************
+ * output.c
+ *
+ * SER486 - Assignment 3
+ * Spring '26
+ * Written By:  Nathaniel Davis-Perez (student)
+ *
+ * this file implements functions associated with SER486
+ * homework assignment 3.  The procedures implemented
+ * provide ...
+ *
+ * functions are :
+ *    writehex8(unsigned char num) - a function to ...
+ * 
+ *    writehex16(unsigned int num) - a function to ...
+ * 
+ *    void blink_led(char *msg) - a function to ...
+ */
+
 /* Student-provided function comments go here */
 void writehex8(unsigned char num)
 {
-    /* student-provided implementatino code goes here */
+    /* student-provided implementation code goes here */
 }
 
 /* Student-provided function comments go here */
 void writehex16(unsigned int num)
 {
-    /* student-provided implementatino code goes here */
+    /* student-provided implementation code goes here */
 
 }
 
 /* Student-provided function comments go here */
 void blink_led(char *msg)
 {
-    /* student-provided implementatino code goes here */
+    /* student-provided implementation code goes here */
 }

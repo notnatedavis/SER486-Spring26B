@@ -22,26 +22,54 @@ Steps :
 
 Rubric :
 
-- Proper Toolchain (demonstrate)
-The code is written and compiled using the IDE and development toolchain for AVR microcontrollers.
+- create a C language program for the Atmega328p microcontroller that 
+consists of two program files (main.c and output.c).  Main.c provides 
+the main program entry point and implements a control loop design pattern.  
+Output.c provides various output functions that can be called by main.
 
-- Stand-alone code (demonstrate)
-The program does not include any header files or external libraries.
+The requirements for main.c :
 
-- Structure and Design Pattern (demonstrate)
-The program consists of two functions: delay() and main() and the main function implements a control loop design pattern.
+- 1. main.c may only include “hw4lib.h” and “output.h”
+- 2. main.c implements a single function: void main() - you might need to provide an additional compiler directive to GCC to ignore the fact that main returns void.  Consult the gcc online documentation to find the proper command line parameter, then add the parameter to your Makefile in the USER_SETTINGS section.
+- 3. In the initialization stage of the main() function must set the direction of Port B pin 1 as an output and call uart_init();
+- 4. Following uart initialization, main() should call writestr() using a string literal (no variables) in order to output “SER486 HW3 – yourname\n\r” (where yourname is replaced with your name). Note that the “\r” is required by the serial console program in order to add a carriage return following the line feed.
+- 5. After step 4, use writehex8() to output the value 0x0A to the serial console. This value should be followed by a carriage return and line feed so that the next text will be on its own line.
+- 6. After step 5, use writehex16() to output the value 0xC0DE to the serial console. This value should be followed by a carriage return and line feed so that the next text will be on its own line.
+- 7. After displaying the outputs, main() should loop forever, using blink_led() to blink the code “--- -.- “ (Morse code for “ok”) to the LED.
+- 8. main.c must be properly commented with :
+  - 1. Comments at the start of the file that include description of file, your name, course number and assignment number (see output.c as an example)
+  - 2. Comments at the start of each function (see instructor provided functions in output.c as an example).
+  - 3. Comments within the code ( see instructor provided code in output.c as an example).
+  - 4. Comments must be accurate.
 
-- Hardware: Initialization (demonstrate)
-Main function initializes Port B, pin 1 as an output. The direction of all other pins should be left unchanged.
+The requirements for output.c :
 
-- Hardware: Bit Toggle (demonstrate)
-Within the control loop, the value of Port B, pin 1 is toggled. The values of all other pins are left unchanged.
-
-- Delay Function (demonstrate)
-The delay function is called from within the control loop to delay approximately 2 seconds each time around the loop.
-
-- Simulation (demonstrate)
-Evidence shows the program running properly on the simulator.
-
-- Execution (demonstrate)
-Evidence shows the program running properly on the Atmega development board
+- 3. Using the provided code do not modify anything outside of output.c & main.c, do not include any header files other than “hw4lib.h” and link the static "hw4lib.a" libraryy
+- 4. Complete three new functions: writehex8(), writehex16(), and blink_led().
+- 5. output.c must be properly commented with :
+  - 5.1. Comments at the start of the file that include description of file, your name, course number and assignment number.
+  - 5.2. Comments at the start of each function
+  - 5.3. Comments within the code
+  - 5.4. Comments must be accurate
+- 6. writehex8()
+  - 6.1. Accepts a single input parameter in the form of an unsigned char (numeric value).
+  - 6.2. Outputs the ascii representation of the numeric value to the console. For instance, if the numeric value is 0x11, then 11 will be output to the console.
+  - 6.3. Uses the library function uart_writechar() to output the characters.
+  - 6.4. Does not send a carriage return/line feed to the console after writing the characters.
+  - 6.5. Returns void.
+- 7. writehex16()
+  - 7.1. Accepts a single input parameter in the form of an unsigned integer (numeric value).
+  - 7.2. Outputs the ascii representation of the numeric value to the console. For instance, if the numeric value is 0xDDF0, then DDF0 will be output to the console.
+  - 7.3. Uses writehex8() to output the characters.
+  - 7.4. Does not send a carriage return/line feed to the console after writing the characters.
+  - 7.5. Returns void.
+- 8. blink_led()
+  - 8.1. Accepts a single input parameter in the form of pointer to an ascii zero-terminated string (char *).
+  - 8.2. Evaluates each character in the string in order, and takes the following action:
+    - 8.2.1 If a ‘-‘ character is found, use the instructor-provided delay() function and the PORTB register to turn on the LED for 750ms, followed by the LED off for 100ms.
+    - 8.2.2 If a ‘.‘ character is found, use the instructor-provided delay() function and the PORTB register to turn on the LED for 250ms, followed by the LED off for 100ms.
+    - 8.2.3 If a ‘ ‘ (space) character is found, use the instructor-provided delay() function to delay for 1000ms with the LED off.
+  - 8.3 Ignore all other characters.
+  - 8.4 Returns void.
+  
+Build and link the code using the –Os (optimize for size) compiler setting for release code and no optimization for debug.  Link the hw4lib.a static library file.  No other libraries should be included
