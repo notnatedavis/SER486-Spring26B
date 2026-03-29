@@ -1,7 +1,7 @@
 /********************************************************
- * main.c
+ * homework2.c
  *
- * SER486 - Assignment 3
+ * SER486 - Assignment 2
  * Spring '26
  * Written By:  Nathaniel Davis-Perez (student)
  *
@@ -13,6 +13,5 @@
  *    somefunc()  - a function to ...
  */
 
- #include // need to link hw4lib.a static library
- #define // anything here
-
+#include // need to link hw4lib.a static library
+#define // anything here
