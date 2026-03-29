@@ -30,7 +30,21 @@ Steps :
     * open vscode *
   > `Ctrl+Shift+D` to open `Run and Debug panel`
   > play `AVR simulavr` *requires adding config to launch.json*
-  > 
+  
+
+
+  > homework2.c is a AVR program for atmega328p microcontrollers
+    that blinks an LED on Port B pin 1. with exactly two functions
+    > delay is a busy wait loop that burns CPU cycles coutning through nested loops
+    > main initializes hardware and sets bit 1 to 1 then enters infinite
+      loop toggling between 0 and 1 each time
+
+  > make file handles the avr build pipeline with tools targets sources
+    and flags, compiling and setting up .hex (the file that gets flashed) and .elf (compiled hw2.c)
+
+  > the three watch expressions are the direct memory reads of the
+    atmega328p  io register file 
+    where x23=PortBinput , x24=PortBdirection , 0x25=PortBoutput
 
 Rubric :
 
