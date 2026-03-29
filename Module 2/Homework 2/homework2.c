@@ -6,7 +6,7 @@
  * Written By:  Nathaniel Davis-Perez (student)
  *
  * this file implements functions associated with SER486
- * homework assignment 3.  The procedures implemented
+ * homework assignment 2.  The procedures implemented
  * provide ...
  *
  * functions are :

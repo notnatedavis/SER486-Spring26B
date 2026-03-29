@@ -112,7 +112,7 @@ void writestr(char * str)
 * STUDENT CODE BELOW THIS POINT
 *************************************************************/
 
-/********************************************************
+/* *********************************
  * output.c
  *
  * SER486 - Assignment 3
@@ -124,28 +124,138 @@ void writestr(char * str)
  * provide ...
  *
  * functions are :
- *    writehex8(unsigned char num) - a function to ...
- * 
- *    writehex16(unsigned int num) - a function to ...
- * 
- *    void blink_led(char *msg) - a function to ...
+ *    writehex8(unsigned char) - writes hexadecimal ASCII
+ *                               representation of 8-bit
+ *                               unsigned int to UART
+ *
+ *    writehex16(unsigned int) - writes hexadecimal ASCII
+ *                               representation of 16-bit
+ *                               unsigned int to UART
+ *
+ *    blink_led(char *)        - blinks a morse code pattern on
+ *                               the development board's user LED
  */
 
 /* Student-provided function comments go here */
+/* *********************************
+ * writehex8(unsigned char num)
+ *
+ * outputs two-digit hexadecimal ASCII representation
+ * of 8-bit unsigned value to UART
+ *
+ * args :
+ *   num - 8-bit unsigned value to display in hex
+ *
+ * returns :
+ *   nothing
+ *
+ * changes:
+ *   state of the UART transmit buffer
+ */
 void writehex8(unsigned char num)
 {
     /* student-provided implementation code goes here */
+    
+    unsigned char piece;  // holds one 4-bit piece
+    unsigned char digit;   // ASCII character to send
+
+    // output the high piece (upper 4 bits) 
+    piece = (num >> 4) & 0x0F;
+    // convert piece to ASCII hex character
+    digit = (piece < 10) ? ('0' + piece) : ('A' + piece - 10);
+    uart_writechar(digit);
+
+    // output the low piece (lower 4 bits)
+    piece = num & 0x0F;
+    // convert piece to ASCII hex character
+    digit = (piece < 10) ? ('0' + piece) : ('A' + piece - 10);
+    uart_writechar(digit);
 }
 
 /* Student-provided function comments go here */
+/* *********************************
+ * writehex16(unsigned int num)
+ *
+ * outputs four-digit hexadecimal ASCII representation
+ * of 16-bit unsigned value to UART
+ *
+ * args :
+ *   num - 16-bit unsigned value to display in hex
+ *
+ * returns :
+ *   nothing
+ *
+ * changes :
+ *   state of the UART transmit buffer
+ */
 void writehex16(unsigned int num)
 {
     /* student-provided implementation code goes here */
+    
+    // output the high byte 15-8 first
+    writehex8((unsigned char)(num >> 8));
 
+    // output the low byte 7-0 second
+    writehex8((unsigned char)(num & 0xFF));
 }
 
 /* Student-provided function comments go here */
+/* *********************************
+ * blink_led(char *msg)
+ *
+ * blinks the user-programmable LED on Port B pin 1 according
+ * to morse code pattern string
+ * each character in the string is evaluated as :
+ *   '-' LED on for 750ms, then off for 100ms (dash)
+ *   '.' LED on for 250ms, then off for 100ms (dot)
+ *   ' ' LED off for 1000ms (gap between char)
+ * All other characters are ignored
+ *
+ * args :
+ *   msg - pointer to a null-terminated morse code pattern string
+ *
+ * returns :
+ *   nothing
+ *
+ * changes :
+ *   PORTB - toggles PB1 to control the LED
+ */
 void blink_led(char *msg)
 {
     /* student-provided implementation code goes here */
+
+    // index for stepping through msg string
+    unsigned int i;  
+
+    // iterate over each character in the morse code string
+    for (i=0; msg[i] != 0; i++) {
+
+        if (msg[i] == '-') {
+            // (dash) : turn LED on for 750ms, then off for 100ms 
+            writestr("LED ON  - DASH 750ms\n\r");
+            PORTB |=  (1 << PB1); // LED on
+            delay(750);
+            PORTB &= ~(1 << PB1); // LED off
+            writestr("LED OFF - 100ms\n\r");
+            delay(100);
+
+        } else if (msg[i] == '.') {
+            // (dot) : turn LED on for 250ms, then off for 100ms
+            writestr("LED ON  - DOT 250ms\n\r");
+            PORTB |=  (1 << PB1); // LED on 
+            delay(250);
+            PORTB &= ~(1 << PB1); // LED off
+            writestr("LED OFF - 100ms\n\r");
+            delay(100);
+
+        } else if (msg[i] == ' ') {
+            // (space) : LED stays off for 1000ms (gap between char)
+            writestr("LED OFF - SPACE 1000ms\n\r");
+            PORTB &= ~(1 << PB1); // ensure LED is off
+            delay(1000);
+
+        }
+
+        // all other char ignored
+    }
 }

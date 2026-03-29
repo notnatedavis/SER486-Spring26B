@@ -73,3 +73,21 @@ The requirements for output.c :
   - 8.4 Returns void.
   
 Build and link the code using the –Os (optimize for size) compiler setting for release code and no optimization for debug.  Link the hw4lib.a static library file.  No other libraries should be included
+
+  > make clean
+  > make
+  > simavr -m atmega328p -f 16000000 --gdb bin/homework3.elf \
+  | strings 2>&1
+
+    * new terminal *
+  > avr-gdb bin/homework3.elf
+  > target remote :1234
+  > break main
+  > continue
+  > break output.c:235
+  > break output.c:242
+  > break output.c:249
+  > display/x *(unsigned char *)0x800025
+  > continue
+  > display (char)msg[i]
+  > display i
