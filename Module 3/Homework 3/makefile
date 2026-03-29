@@ -20,7 +20,7 @@ BINDIR = bin
 # flags
 RELEASE_OPTIMIZATION = Os
 USER_SETTINGS = -I ./ -DYOURNAME="Nathaniel Davis-Perez"
-CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -O0 -Wall -std=c99 -g $(USER_SETTINGS)
+CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os -Wall -std=c99 -g $(USER_SETTINGS)
 # static library
 LIBS = hw4lib.a
 
