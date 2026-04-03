@@ -1,0 +1,61 @@
+Submission : 
+    (dont need to use simulator to debug
+    , if not make note)
+    > main.c
+    > temp.c
+    > temp.h
+    > makefile
+    > ss build log compile
+    > ss PuTTy console
+    > link to yt vid
+
+Rubric :
+
+    > main.c
+        1. c may only include "simpledelah.h", "simpleled.h", "temp.h", and "uart.h"
+        2. c implements a single function int main()
+        3. upon entry main() initializes the led, uart and temperature sensor using their respective “init” functions.
+        4. Following initialization, main() should call uart_writestr() using a string literal (no variables) in order to output “SER 486 HW4 – yourname\n\r” (where yourname is replaced with your name). Note that the “\r” is required by the serial console program in order to add a carriage return following the line feed.
+        5. Immdiately following output of the banner message, main should implement an infinite loop.  Within this loop use delay(), temp_is_data_ready(), and temp_get(), and temp_start(), uart_writedec32() to get and display the value of the temperature sensor once every 1 second.
+        6. c must be properly commented with :
+            6.1. Complete comments at the start of the file that include description of file, your name, course number and assignment number
+            6.2. Complete comments at the start of each function.
+            6.3. Comments within the code
+            6.4. Comments must be accurate
+
+    > temp.c & temp.h
+        1. Do not include any header files
+        2. Complete four “public” functions: temp_init(), temp_is_data_ready(), temp_start() and temp_get().
+        3. temp.c must be properly commented with :
+            3.1. Complete comments at the start of the file that include description of file, your name, course number and assignment number.
+            3.2. Complete comments at the start of each function.
+            3.3. Comments within the code
+            3.4. Comments must be accurate
+        4. temp.h must be properly commented with :
+            4.1 Complete comments at the start of the file that include description of file, your name, course number and assignment number.
+            4.2 Brief comments for each function declaration describing the function.
+            4.3. Comments must be accurate.
+        5. temp_init()
+            5.1. Accepts no input parameters
+            5.2. Initializes the Atmega328P analog to digital convertor (ADC) to measure the temperature sensor input channel with a reference voltage of 1.1V.
+            5.3. Returns void
+        6. temp_is_data_ready()
+            6.1. Accepts no input parameters
+            6.2. Reads the status of the Atmega328P ADC to determine if the most recent conversion has completed.
+            6.3. Returns an integer value: 1 if the conversion has completed, otherwise, returns 0.
+        7. temp_start()
+            7.1. Accepts no input parameters
+            7.2. Start the conversion of the Atmega328P ADC.
+            7.3. Returns void
+        8. temp_get()
+            8.1. Accepts no input parameters.
+            8.2. Reads the value of the most recent conversion form the Atmega328P ADC
+            8.3. Converts the value read to degrees Celsius using the following equation :
+            (degrees = ((reading x 101) / 100) – 273)
+      
+            degrees and reading are signed long values to avoid integer overflows
+            derived from the table in the Atmega datasheet
+
+            8.4. Returns the signed integer value for the temperature in degrees Celsius
+
+    > Be sure to include the lib_hw5.a static library file when linking.  No other libraries should be included.

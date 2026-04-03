@@ -3,7 +3,7 @@
  *
  * SER486 - Assignment 3
  * Spring '26
- * Written By:  Nathaniel Davis-Perez (student)
+ * Written By:  Nathaniel Davis-Perez
  *
  * This file implements the main entry point for
  * Homework Assignment 3.
