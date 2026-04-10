@@ -1,0 +1,19 @@
+Submission : 
+
+    > makefile
+    > .c file(s)
+    > .h files(s)
+    > ytlink.txt 
+        show date/time updating at least 10 sec
+    > .pdf showing calculations for run time of led_update()
+
+Rubric :
+
+    > proper comments (header + args & params & returns)
+    > ss of build
+    > ss of output
+    > link to yt vid
+
+Specific Requirements : 
+
+    > use project template as a staring point for program
