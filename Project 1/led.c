@@ -3,17 +3,16 @@
  *
  * SER486 - Project 1 Counter Timers
  * Spring '26
- * Written By:  Nathaniel Davis-Perez
+ * Written By: Nathaniel Davis-Perez
  *
- * Implements Morse code blinking on the LED using a finite state machine
- * Timing is handled by delay instance 0.
+ * Implements morse code blinking on the LED w/ state machine
+ * timing is handled by delay instance 0
  *
  * Functions:
  *   led_set_blink() - set new Morse pattern and reset FSM
- *   led_update()    - called in main loop; updates blink state
+ *   led_update() - called in main loop; updates blink state
  *
- * led_init(), led_on(), led_off(), led_is_on() are provided by
- *   pre‑compiled library lib_proj1.a
+ * led_init(), led_on(), led_off(), led_is_on() provided by lib_proj1.a
  */
 
 #include "led.h"

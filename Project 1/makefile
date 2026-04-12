@@ -1,7 +1,7 @@
 CC = avr-gcc
 MCU = atmega328p
 CFLAGS = -mmcu=$(MCU) -DF_CPU=16000000UL -Os -Wall -std=c99 -g
-USER = -I./ -DYOURNAME=\"Nathaniel Davis-Perez\"
+USER = -I./ -DYOURNAME='"Nathaniel Davis-Perez"'
 LIBS = lib_proj1.a
 SOURCES = main.c delay.c led.c timer1.c
 TARGET = proj1.elf

@@ -3,5 +3,7 @@
 *.DS_Store
 .DS_Store/
 *.DS_Store/
+*bin/
+bin/
 # .vscode/ need to maintain for workspace settings
 .idea/

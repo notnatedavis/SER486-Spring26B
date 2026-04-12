@@ -17,3 +17,32 @@ Rubric :
 Specific Requirements : 
 
     > use project template as a staring point for program
+
+x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Unfortunately this video does not have any audio my microphone
+    is experiencing issues.
+
+    This is my yt video for SER486 - Spring '26 b
+    ndavispe Apr 12 2026
+
+    I will go over each file with the fulfilled Requirements
+    as well as live demonstration of functional build and run
+

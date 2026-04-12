@@ -3,14 +3,15 @@
  *
  * SER486 - Project 1 Counter Timers
  * Spring '26
- * Written By:  Nathaniel Davis-Perez
+ * Written By: Nathaniel Davis-Perez
  *
- * Implements two instances of a 1‑ms resolution delay timer using
- * Timer0 in CTC mode. The interrupt service routine increments
- * per‑instance counters up to their respective limits.
+ * Implements two instances of a 1ms delay timer w/
+ * Timer0 in CTC mode. Interrupt service increments
+ * instance counters up to respective limits
  *
  * Functions:
  *   delay_init() - configures Timer0
+ *   delay_reinit() - forces a full reconfiguration of Timer0
  *   delay_get() - returns current elapsed ms for instance
  *   delay_set() - sets limit and resets count for instance
  *   delay_isdone() - returns 1 if count reached limit
@@ -23,16 +24,18 @@
 #define TCCR0B (*(volatile unsigned char*)0x45)
 #define OCR0A (*(volatile unsigned char*)0x47)
 #define TIMSK0 (*(volatile unsigned char*)0x6E)
+#define TIFR0 (*(volatile unsigned char*)0x35)
 
 /* ----- bit values (prescaler 64, CTC mode, OCIE0A) ----- */
 #define CTC_BIT 0x02 /* WGM01 = 1 */
 #define PRESC_64 0x03 /* CS00=1, CS01=1 */
 #define OC_COMP_VAL 249 /* 1 ms @ 16 MHz */
 #define OCIE0A_BIT 0x02 /* Timer0 Compare A interrupt enable */
+#define OCF0A_BIT 0x02    /* Output Compare A flag */
 
 /* ----- inline assembly for cli/sei (atomic operations) ----- */
-#define cli() __asm__ volatile ("cli" ::: "memory")
-#define sei() __asm__ volatile ("sei" ::: "memory")
+#define cli() __asm__ volatile ("cli" ::: "memory") // SUPER IMPORTANT
+#define sei() __asm__ volatile ("sei" ::: "memory") // SUPER IMPORTANT
 
 /* internal state – two delay instances (0 and 1) */
 static volatile unsigned int count[2] = {0, 0};
@@ -44,7 +47,7 @@ static unsigned char initialized = 0;
  *   args: none
  *   returns: nothing
  *   behavior: sets CTC mode, prescaler 64, compare value 249,
- *             enables Output Compare A interrupt. Called once.
+ *             enables output Compare A interrupt only called once
  */
 static void delay_init(void) {
     if (initialized) return;
@@ -52,7 +55,19 @@ static void delay_init(void) {
     TCCR0B = PRESC_64; /* prescaler = 64 */
     OCR0A  = OC_COMP_VAL; /* compare value for 1 ms */
     TIMSK0 = OCIE0A_BIT; /* enable interrupt */
+    TIFR0 = (1 << OCF0A_BIT);   // clear pending compare match flag
     initialized = 1;
+}
+
+/* ********************************************
+ * delay_reinit - force a full reinitialization of Timer0
+ *   args: none
+ *   returns: nothing
+ *   behavior: resets the initialized flag and calls delay_init()
+ */
+void delay_reinit(void) {
+    initialized = 0;
+    delay_init();
 }
 
 /* ********************************************
@@ -72,7 +87,7 @@ unsigned delay_get(unsigned num) {
 
 /* ********************************************
  * delay_set - set delay limit and reset count for an instance
- *   args: num  - instance index (0 or 1)
+ *   args: num - instance index (0 or 1)
  *         msec - delay limit in milliseconds
  *   returns: nothing
  *   behavior: initializes Timer0 if needed, then atomically sets
@@ -103,10 +118,10 @@ unsigned delay_isdone(unsigned int num) {
 }
 
 /* ********************************************
- * __vector_14 - Timer0 Compare A interrupt service routine
+ * __vector_14 - Timer0 Compare A interrupt
  *   args: none
  *   returns: nothing
- *   behavior: increments each delay instance counter up to its limit
+ *   behavior: increments delay instance counter up to limit
  */
 void __vector_14(void) __attribute__((signal));
 void __vector_14(void) {

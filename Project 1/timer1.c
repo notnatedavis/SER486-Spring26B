@@ -3,16 +3,16 @@
  *
  * SER486 - Project 1 Counter Timers
  * Spring '26
- * Written By:  Nathaniel Davis-Perez
+ * Written By: Nathaniel Davis-Perez
  *
- * Implements a free‑running 32‑bit counter with 1‑second resolution
- * using Timer1 in CTC mode. The ISR increments the counter each second.
+ * Implements running 32‑bit counter with 1‑second resolution
+ * using Timer1 in CTC mode. ISR increments counter each sec
  *
  * Functions:
- *   timer1_init()   - configures Timer1 for 1 Hz interrupts
- *   timer1_get()    - returns current tick count (atomic)
- *   timer1_clear()  - resets tick count to 0 (atomic)
- *   __vector_11()   - Timer1 Compare A ISR
+ *   timer1_init() - configures Timer1 for 1 Hz interrupts
+ *   timer1_get() - returns current tick count (atomic)
+ *   timer1_clear() - resets tick count to 0 (atomic)
+ *   __vector_11() - Timer1 Compare A ISR
  */
 
 /* ----- hardcoded AVR register addresses (atmega328p) ----- */
@@ -47,10 +47,10 @@ static volatile unsigned long count = 0;   /* seconds since last clear */
  *             enables Output Compare A interrupt, clears pending flag
  */
 void timer1_init(void) {
-    TCCR1B = TCCR1B_VAL;           /* CTC mode, prescaler 1024 */
-    OCR1A  = OC_COMP_VAL;           /* 1 second compare value */
-    TIMSK1 = OCIE1A_BIT;            /* enable interrupt */
-    TIFR1  = OCF1A_BIT;             /* clear any pending flag */
+    TCCR1B = TCCR1B_VAL; /* CTC mode, prescaler 1024 */
+    OCR1A  = OC_COMP_VAL; /* 1 second compare value */
+    TIMSK1 = OCIE1A_BIT; /* enable interrupt */
+    TIFR1  = OCF1A_BIT; /* clear any pending flag */
 }
 
 /* ********************************************
