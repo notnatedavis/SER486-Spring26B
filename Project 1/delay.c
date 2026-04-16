@@ -11,7 +11,7 @@
  *
  * Functions:
  *   delay_init() - configures Timer0
- *   delay_reinit() - forces a full reconfiguration of Timer0
+ *   delay_reinit() - forces a full reconfiguration of Timer0 // needed , issue involving delays in timer and addresses was causing malfunctions in uart
  *   delay_get() - returns current elapsed ms for instance
  *   delay_set() - sets limit and resets count for instance
  *   delay_isdone() - returns 1 if count reached limit
