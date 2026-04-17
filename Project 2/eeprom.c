@@ -1,0 +1,117 @@
+/* ********************************************
+ * eeprom.c
+ *
+ * SER486 - Project 2 EEPROM
+ * Spring '26
+ * Written By: Nathaniel Davis-Perez
+ *
+ * Implements buffered, interrupt-driven EEPROM writes and blocking reads.
+ * Uses EEPROM ready interrupt to send one byte at a time.
+ *
+ * Functions:
+ *   eeprom_readbuf() - blocking read of 'size' bytes into buffer
+ *   eeprom_writebuf() - start buffered write, enable interrupt
+ *   eeprom_isbusy() - returns write_busy flag
+ *   __vector_22() - ISR that writes one byte per interrupt
+ */
+
+/* ----- Imports ----- */
+#include "eeprom.h"
+
+/* ----- Defined ----- */
+#define BUFSIZE 256
+
+static unsigned char writebuf[BUFSIZE];
+static unsigned char bufidx;
+static unsigned char writesize;
+static unsigned int  writeaddr;
+static volatile unsigned char write_busy = 0;
+
+/* ********************************************
+ * eeprom_readbuf - blocking read of bytes from EEPROM
+ *   args: addr - starting address in EEPROM
+ *         buf - pointer to destination buffer
+ *         size - number of bytes to read (0-255)
+ *   returns: nothing
+ *   behavior: for each byte, waits for any ongoing write to finish,
+ *             sets address registers, starts read, and stores result.
+ *             Address increments automatically.
+ */
+void eeprom_readbuf(unsigned int addr, unsigned char* buf, unsigned char size) {
+    unsigned char i;
+    for (i = 0; i < size; i++) {
+        /* Wait for any ongoing write to finish */
+        while (EECR & (1 << EEPE));
+        /* Set address */
+        EEARL = (unsigned char)(addr & 0xFF);
+        EEARH = (unsigned char)((addr >> 8) & 0xFF);
+        /* Start read */
+        EECR |= (1 << EERE);
+        /* Read data */
+        buf[i] = EEDR;
+        addr++;
+    }
+}
+
+/* ********************************************
+ * eeprom_writebuf - start buffered write to EEPROM
+ *   args: addr - starting address in EEPROM
+ *         buf - pointer to source buffer
+ *         size - number of bytes to write (0-255)
+ *   returns: nothing
+ *   behavior: stores address, sets write_busy=1, copies data into internal
+ *             write buffer, sets writesize, then enables EEPROM ready interrupt.
+ *             Caller must ensure eeprom_isbusy() returns 0 before calling.
+ */
+void eeprom_writebuf(unsigned int addr, unsigned char* buf, unsigned char size) {
+    /* According to spec, caller must ensure !isbusy() */
+    writeaddr = addr;
+    write_busy = 1;
+    bufidx = 0;
+    for (unsigned char i = 0; i < size; i++) {
+        writebuf[i] = buf[i];
+    }
+    writesize = size;
+    /* Enable EEPROM ready interrupt */
+    EECR |= (1 << EERIE);
+}
+
+/* ********************************************
+ * eeprom_isbusy - check if a write is in progress
+ *   args: none
+ *   returns: 1 if write_busy is 1, else 0
+ *   behavior: returns current state of write_busy flag.
+ */
+unsigned char eeprom_isbusy(void) {
+    return write_busy;
+}
+
+/* ********************************************
+ * __vector_22 - EEPROM ready interrupt service routine
+ *   args: none (ISR)
+ *   returns: nothing
+ *   behavior: if more bytes remain, writes next byte from writebuf to EEPROM,
+ *             increments address and index. After last byte, disables EEPROM
+ *             ready interrupt and clears write_busy flag.
+ */
+ISR(EE_READY_vect) {   /* __vector_22 */
+    if (bufidx < writesize) {
+        /* Wait for previous write to finish (should be already done) */
+        while (EECR & (1 << EEPE));
+        /* Set address */
+        EEARL = (unsigned char)(writeaddr & 0xFF);
+        EEARH = (unsigned char)((writeaddr >> 8) & 0xFF);
+        /* Set data */
+        EEDR = writebuf[bufidx];
+        /* Start write */
+        EECR |= (1 << EEPE);
+        /* Advance */
+        writeaddr++;
+        bufidx++;
+    }
+    if (bufidx >= writesize) {
+        /* Disable EEPROM ready interrupts and clear busy flag */
+        EECR &= ~(1 << EERIE);
+        write_busy = 0;
+    }
+}

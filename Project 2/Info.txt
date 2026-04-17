@@ -1,0 +1,19 @@
+Submission : 
+
+    > files : 
+        > config.c
+        > config.h
+        > eeprom.c
+        > eeprom.h
+        > util.c
+        > vpd.c
+        > vpd.h
+    > 
+
+Rubric :
+
+    > x
+
+Specific Requirements : 
+
+    > x
