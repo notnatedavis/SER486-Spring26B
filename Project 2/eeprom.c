@@ -10,9 +10,9 @@
  *
  * Functions:
  *   eeprom_readbuf() - blocking read of 'size' bytes into buffer
- *   eeprom_writebuf() - start buffered write, enable interrupt
+ *   eeprom_writebuf() - start buffered write, enable interrupt, start first byte
  *   eeprom_isbusy() - returns write_busy flag
- *   __vector_22() - ISR that writes one byte per interrupt
+ *   __vector_22() - ISR that writes subsequent bytes
  */
 
 /* ----- Imports ----- */
@@ -61,7 +61,8 @@ void eeprom_readbuf(unsigned int addr, unsigned char* buf, unsigned char size) {
  *         size - number of bytes to write (0-255)
  *   returns: nothing
  *   behavior: stores address, sets write_busy=1, copies data into internal
- *             write buffer, sets writesize, then enables EEPROM ready interrupt.
+ *             write buffer, sets writesize, enables EEPROM ready interrupt,
+ *             then starts the first byte write manually (ISR handles the rest).
  *             Caller must ensure eeprom_isbusy() returns 0 before calling.
  */
 void eeprom_writebuf(unsigned int addr, unsigned char* buf, unsigned char size) {
@@ -81,6 +82,16 @@ void eeprom_writebuf(unsigned int addr, unsigned char* buf, unsigned char size) 
     
     /* Enable EEPROM ready interrupt */
     EECR |= (1 << EERIE);
+    
+    /* Start the first write manually (the ISR will continue with the rest) */
+    while (EECR & (1 << EEPE));            /* wait for previous write (none) */
+    EEARL = (unsigned char)(writeaddr & 0xFF);
+    EEARH = (unsigned char)((writeaddr >> 8) & 0xFF);
+    EEDR = writebuf[bufidx];
+    EECR |= (1 << EEMPE);                  /* master enable */
+    EECR |= (1 << EEPE);                   /* start write */
+    /* Note: we do NOT increment bufidx or writeaddr here – the ISR will handle
+       the first byte's completion and advance to the next byte. */
 }
 
 /* ********************************************
@@ -102,28 +113,20 @@ unsigned char eeprom_isbusy(void) {
  *             ready interrupt and clears write_busy flag.
  */
 ISR(EE_READY_vect) {
+    /* Move to next byte (the one we just finished writing) */
+    bufidx++;
+    writeaddr++;
+    
     if (bufidx < writesize) {
-        /* Wait for previous write to finish (should be already done) */
+        /* Write the next byte */
         while (EECR & (1 << EEPE));
-        
-        /* Set address */
         EEARL = (unsigned char)(writeaddr & 0xFF);
         EEARH = (unsigned char)((writeaddr >> 8) & 0xFF);
-        
-        /* Set data */
         EEDR = writebuf[bufidx];
-        
-        /* Start write */
         EECR |= (1 << EEMPE);
         EECR |= (1 << EEPE);
-        
-        /* Advance */
-        writeaddr++;
-        bufidx++;
-    }
-    
-    if (bufidx >= writesize) {
-        /* Disable EEPROM ready interrupts and clear busy flag */
+    } else {
+        /* No more bytes: disable interrupts and clear busy flag */
         EECR &= ~(1 << EERIE);
         write_busy = 0;
     }

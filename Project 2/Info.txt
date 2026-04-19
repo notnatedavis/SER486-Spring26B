@@ -8,12 +8,13 @@ Submission :
         > util.c
         > vpd.c
         > vpd.h
-    > 
+    > ss Build
+    > ss Output
+    > pdf w/ calculations
+    > yt link
 
-Rubric :
+Usage : 
 
-    > x
-
-Specific Requirements : 
-
-    > x
+    > make clean
+    > make
+    > simavr -m atmega328p --uart0=stdio -v proj2.elf

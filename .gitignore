@@ -5,5 +5,8 @@
 *.DS_Store/
 *bin/
 bin/
+.elf
+*.elf
+
 # .vscode/ need to maintain for workspace settings
 .idea/
