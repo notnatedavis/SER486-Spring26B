@@ -5,8 +5,8 @@
  * Spring '26
  * Written By: Nathaniel Davis-Perez
  *
- * Implements buffered, interrupt-driven EEPROM writes and blocking reads.
- * Uses EEPROM ready interrupt to send one byte at a time.
+ * Implements buffered (interruptable) EEPROM writes & blocking reads
+ * Uses EEPROM ready interrupt to send 1 byte at a time
  *
  * Functions:
  *   eeprom_readbuf() - blocking read of 'size' bytes into buffer
@@ -35,19 +35,19 @@ static volatile unsigned char write_busy = 0;
  *         size - number of bytes to read (0-255)
  *   returns: nothing
  *   behavior: for each byte, waits for any ongoing write to finish,
- *             sets address registers, starts read, and stores result.
- *             Address increments automatically.
+ *             sets address registers, starts read, and stores result
+ *             address is incremented automatically
  */
 void eeprom_readbuf(unsigned int addr, unsigned char* buf, unsigned char size) {
     for (unsigned char i = 0; i < size; i++) {
-        /* Wait for any ongoing write to finish */
+        /* 1. wait for any ongoing write to finish */
         while (EECR & (1 << EEPE));
         
-        /* Set address */
+        /* 2. set address */
         EEARL = (unsigned char)(addr & 0xFF);
         EEARH = (unsigned char)((addr >> 8) & 0xFF);
         
-        /* Read data */
+        /* 3. read data */
         EECR |= (1 << EERE);
         buf[i] = EEDR;
         addr++;
@@ -62,43 +62,44 @@ void eeprom_readbuf(unsigned int addr, unsigned char* buf, unsigned char size) {
  *   returns: nothing
  *   behavior: stores address, sets write_busy=1, copies data into internal
  *             write buffer, sets writesize, enables EEPROM ready interrupt,
- *             then starts the first byte write manually (ISR handles the rest).
- *             Caller must ensure eeprom_isbusy() returns 0 before calling.
+ *             then starts the first byte write manually (ISR handles rest)
+ *             caller must ensure eeprom_isbusy() returns 0 before calling 
+ *             else exits
  */
 void eeprom_writebuf(unsigned int addr, unsigned char* buf, unsigned char size) {
-    /* Cannot start a new write if already busy */
+    /* 0. cannot start a new write if already busy */
     if (write_busy) return;
     
-    /* Prepare for the write sequence */
+    /* 1. prepare for the write sequence */
     writeaddr = addr;
     write_busy = 1;
     bufidx = 0;
     writesize = size;
     
-    /* Copy data into internal buffer */
+    /* 2. copy data into internal buffer */
     for (unsigned char i = 0; i < size; i++) {
         writebuf[i] = buf[i];
     }
     
-    /* Enable EEPROM ready interrupt */
+    /* 3. enable EEPROM ready interrupt */
     EECR |= (1 << EERIE);
     
-    /* Start the first write manually (the ISR will continue with the rest) */
-    while (EECR & (1 << EEPE));            /* wait for previous write (none) */
+    /* 4. start the first write manually (the ISR will continue with the rest) */
+    while (EECR & (1 << EEPE)); // wait for previous write (none)
     EEARL = (unsigned char)(writeaddr & 0xFF);
     EEARH = (unsigned char)((writeaddr >> 8) & 0xFF);
     EEDR = writebuf[bufidx];
-    EECR |= (1 << EEMPE);                  /* master enable */
-    EECR |= (1 << EEPE);                   /* start write */
-    /* Note: we do NOT increment bufidx or writeaddr here – the ISR will handle
-       the first byte's completion and advance to the next byte. */
+    EECR |= (1 << EEMPE); // master enable
+    EECR |= (1 << EEPE); // start write
+
+    /* noted : ISR handles first byte's completion + advance to next */
 }
 
 /* ********************************************
  * eeprom_isbusy - check if a write is in progress
  *   args: none
  *   returns: 1 if write_busy is 1, else 0
- *   behavior: returns current state of write_busy flag.
+ *   behavior: returns current state of write_busy flag
  */
 unsigned char eeprom_isbusy(void) {
     return write_busy;
@@ -110,15 +111,15 @@ unsigned char eeprom_isbusy(void) {
  *   returns: nothing
  *   behavior: if more bytes remain, writes next byte from writebuf to EEPROM,
  *             increments address and index. After last byte, disables EEPROM
- *             ready interrupt and clears write_busy flag.
+ *             ready interrupt and clears write_busy flag
  */
 ISR(EE_READY_vect) {
-    /* Move to next byte (the one we just finished writing) */
+    /* move to next byte (the one we just finished writing) */
     bufidx++;
     writeaddr++;
     
     if (bufidx < writesize) {
-        /* Write the next byte */
+        /* write the next byte */
         while (EECR & (1 << EEPE));
         EEARL = (unsigned char)(writeaddr & 0xFF);
         EEARH = (unsigned char)((writeaddr >> 8) & 0xFF);
@@ -126,7 +127,7 @@ ISR(EE_READY_vect) {
         EECR |= (1 << EEMPE);
         EECR |= (1 << EEPE);
     } else {
-        /* No more bytes: disable interrupts and clear busy flag */
+        /* no more bytes: disable interrupts and clear busy flag */
         EECR &= ~(1 << EERIE);
         write_busy = 0;
     }

@@ -5,7 +5,7 @@
  * Spring '26
  * Written By: Nathaniel Davis-Perez
  *
- * Implements checksum calculation and EEPROM dumping utility.
+ * Implements checksum calculation and EEPROM dumping
  *
  * Functions:
  *   update_checksum() - set last byte so sum of all bytes becomes zero
@@ -23,17 +23,16 @@
  *   args: data - pointer to structure (including checksum byte)
  *         dsize - total size of structure in bytes
  *   returns: nothing
- *   behavior: sums all bytes except the last, then sets the last byte
- *             to the two's complement of that sum (mod 256), making the
- *             total sum of all bytes equal to 0 (mod 256).
+ *   behavior: sums all bytes except last, sets last byte
+ *             to (mod 256), making total sum all bytes = 0 (mod 256)
  */
 void update_checksum(unsigned char *data, unsigned int dsize) {
     unsigned int sum = 0;
-    /* Sum all bytes except the last one */
+    /* sum all bytes except the last one */
     for (unsigned int i = 0; i < dsize - 1; i++) {
         sum += data[i];
     }
-    /* Last byte = -sum (mod 256) */
+    /* last byte = -sum (mod 256) */
     data[dsize - 1] = (unsigned char)(-sum);
 }
 
@@ -43,7 +42,7 @@ void update_checksum(unsigned char *data, unsigned int dsize) {
  *         dsize - total size of structure in bytes
  *   returns: 1 if sum of all bytes (mod 256) equals 0, else 0
  *   behavior: sums all bytes of the structure and returns true if the
- *             low byte of the sum is zero.
+ *             low byte of the sum is zero
  */
 int is_checksum_valid(unsigned char *data, unsigned int dsize) {
     unsigned int sum = 0;
@@ -63,15 +62,16 @@ int is_checksum_valid(unsigned char *data, unsigned int dsize) {
  *             representation ('.' for non‑printable). Uses UART.
  */
 void dump_eeprom(unsigned int start_address, unsigned int numbytes) {
-    unsigned char buf[16];   /* 16 bytes per line */
+    unsigned char buf[16]; // 16 bytes/line
     unsigned int addr = start_address;
     unsigned int remaining = numbytes;
 
     while (remaining > 0) {
         unsigned int bytes_this_line = (remaining < 16) ? remaining : 16;
-        /* Read one line from EEPROM */
+
+        /* 1. read one line from EEPROM */
         for (unsigned int i = 0; i < bytes_this_line; i++) {
-            /* Inline EEPROM read (polling) – reusing logic */
+            /* inline EEPROM read (polling) – reusing logic */
             while (EECR & (1 << EEPE));
             EEARL = (unsigned char)(addr & 0xFF);
             EEARH = (unsigned char)((addr >> 8) & 0xFF);
@@ -79,22 +79,26 @@ void dump_eeprom(unsigned int start_address, unsigned int numbytes) {
             buf[i] = EEDR;
             addr++;
         }
-        /* Print address */
+
+        /* 2. print address */
         uart_writehex16((unsigned int)addr - bytes_this_line);
         uart_writechar(':');
         uart_writechar(' ');
-        /* Print hex bytes */
+
+        /* 3. print hex bytes */
         for (unsigned int i = 0; i < bytes_this_line; i++) {
             uart_writehex8(buf[i]);
             uart_writechar(' ');
         }
-        /* Pad with spaces for alignment */
+
+        /* 4. pad with spaces for alignment */
         for (unsigned int i = bytes_this_line; i < 16; i++) {
             uart_writestr("   ");
         }
         uart_writechar(' ');
         uart_writechar(' ');
-        /* Print ASCII representation */
+
+        /* 5. print ASCII representation */
         for (unsigned int i = 0; i < bytes_this_line; i++) {
             unsigned char c = buf[i];
             if (c >= 0x20 && c <= 0x7E)

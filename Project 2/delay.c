@@ -1,7 +1,7 @@
 /* ********************************************
  * delay.c
  *
- * SER486 - Project 2 EEPROM
+ * SER486 - Project 2 EEPROM (from Project 1)
  * Spring '26
  * Written By: Nathaniel Davis-Perez
  *
@@ -26,11 +26,11 @@
 #define TIFR0 (*(volatile unsigned char*)0x35)
 
 /* ----- bit values (prescaler 64, CTC mode, OCIE0A) ----- */
-#define CTC_BIT 0x02        /* WGM01 = 1 */
-#define PRESC_64 0x03       /* CS00=1, CS01=1 */
-#define OC_COMP_VAL 249     /* 1 ms @ 16 MHz */
-#define OCIE0A_BIT 0x02     /* Timer0 Compare A interrupt enable */
-#define OCF0A_BIT 0x02      /* Output Compare A flag */
+#define CTC_BIT 0x02 /* WGM01 = 1 */
+#define PRESC_64 0x03 /* CS00=1, CS01=1 */
+#define OC_COMP_VAL 249 /* 1 ms @ 16 MHz */
+#define OCIE0A_BIT 0x02 /* Timer0 Compare A interrupt enable */
+#define OCF0A_BIT 0x02 /* Output Compare A flag */
 
 /* ----- inline assembly for cli/sei (atomic operations) ----- */
 #define cli() __asm__ volatile ("cli" ::: "memory")
@@ -50,11 +50,11 @@ static unsigned char initialized = 0;
  */
 void delay_init(void) {
     if (initialized) return;
-    TCCR0A = CTC_BIT;               /* CTC mode (WGM01=1) */
-    TCCR0B = PRESC_64;              /* prescaler = 64 */
-    OCR0A  = OC_COMP_VAL;           /* compare value for 1 ms */
-    TIMSK0 = OCIE0A_BIT;            /* enable interrupt */
-    TIFR0 = (1 << OCF0A_BIT);       /* clear pending compare match flag */
+    TCCR0A = CTC_BIT; /* CTC mode (WGM01=1) */
+    TCCR0B = PRESC_64; /* prescaler = 64 */
+    OCR0A  = OC_COMP_VAL; /* compare value for 1 ms */
+    TIMSK0 = OCIE0A_BIT; /* enable interrupt */
+    TIFR0 = (1 << OCF0A_BIT); /* clear pending compare match flag */
     initialized = 1;
 }
 

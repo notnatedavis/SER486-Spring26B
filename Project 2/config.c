@@ -49,11 +49,11 @@ static void write_defaults(void);
  *   args: none
  *   returns: nothing
  *   behavior: waits until EEPROM is not busy, then reads config structure
- *             from address 0x0040. If token is not "ASU" or checksum fails,
- *             writes factory defaults to EEPROM and re-reads. Clears modified flag.
+ *             from address 0x0040. If token not "ASU" or checksum, fails,
+ *             writes factory defaults to EEPROM and re-reads + clears modified flag
  */
 void config_init(void) {
-    /* Wait until EEPROM is not busy */
+    /* wait until EEPROM is not busy */
     while (eeprom_isbusy());
     eeprom_readbuf(CONFIG_BASE_ADDR, (unsigned char*)&config, sizeof(config_struct));
     if (!is_data_valid()) {
@@ -69,14 +69,14 @@ void config_init(void) {
  *   returns: nothing
  *   behavior: if EEPROM is busy or config not modified, does nothing.
  *             Otherwise updates checksum, writes entire config to EEPROM
- *             write buffer, and clears modified flag.
+ *             write buffer + clears modified flag
  */
 void config_update(void) {
     if (eeprom_isbusy())
         return;
     if (!modified)
         return;
-    /* Update checksum before writing */
+    /* update checksum before writing */
     update_checksum((unsigned char*)&config, sizeof(config_struct));
     eeprom_writebuf(CONFIG_BASE_ADDR, (unsigned char*)&config, sizeof(config_struct));
     modified = 0;
@@ -87,7 +87,7 @@ void config_update(void) {
  *   args: none
  *   returns: nothing
  *   behavior: sets the internal modified flag to 1. Should be called
- *             whenever any field of the config structure is changed.
+ *             whenever any field of the config structure is changed
  */
 void config_set_modified(void) {
     modified = 1;
@@ -98,7 +98,7 @@ void config_set_modified(void) {
  *   args: none
  *   returns: 1 if token is "ASU" and checksum is valid, else 0
  *   behavior: compares first three characters of config.token to "ASU",
- *             then calls is_checksum_valid() on the whole structure.
+ *             then calls is_checksum_valid() on the whole structure
  */
 static int is_data_valid(void) {
     if (strncmp(config.token, "ASU", 3) != 0)
@@ -114,7 +114,7 @@ static int is_data_valid(void) {
  *   returns: nothing
  *   behavior: copies the static defaults structure, updates its checksum,
  *             writes it to EEPROM at address 0x0040, and waits for write
- *             completion by polling eeprom_isbusy().
+ *             completion by polling eeprom_isbusy()
  */
 static void write_defaults(void) {
     config_struct def_copy = defaults;

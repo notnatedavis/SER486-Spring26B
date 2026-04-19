@@ -11,16 +11,15 @@
  * Functions:
  *   led_set_blink() - set new Morse pattern and reset FSM
  *   led_update() - called in main loop; updates blink state
- *
- * led_init(), led_on(), led_off(), led_is_on() provided by lib_proj1.a
  */
 
+/* ----- Imports ----- */
 #include "led.h"
 #include "delay.h"
 
+/* ----- Defined ----- */
 /* morse code timing : 1 unit = 100 ms (dot = 1 unit, dash = 3 units) */
 #define UNIT_MS 100
-
 static char* blink_msg   = 0; /* pointer to current blink pattern */
 static unsigned char pos = 0; /* current position in blink_msg   */
 static unsigned char waiting_off = 0; /* 0 = start new symbol, 1 = waiting OFF after ON */
@@ -82,7 +81,7 @@ void led_update(void) {
         }
     }
     else {
-        /* Finished an ON period – do inter‑symbol OFF (1 unit) */
+        /* finished an ON period cycle – do inter‑symbol OFF (1 unit) */
         led_off();
         delay_set(0, UNIT_MS);
         waiting_off = 0;
