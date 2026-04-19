@@ -27,7 +27,7 @@
 /* factory defaults */
 static const vpd_struct defaults = {
     .token = "SER",
-    .model = "FirstName",
+    .model = "FirstName", // im assuming I put this instead of my actual FirstName 'Nathaniel'
     .manufacturer = "LastName",
     .serial_number = "AnyString",
     .manufacture_date = 0,
