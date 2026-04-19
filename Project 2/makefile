@@ -2,19 +2,15 @@ CC = avr-gcc
 MCU = atmega328p
 CFLAGS = -mmcu=$(MCU) -DF_CPU=16000000UL -Os -Wall -std=c99 -g
 USER = -I./ -DYOURNAME='"Nathaniel Davis-Perez"'
-LIBS = lib_proj2.a
-SOURCES = main.c config.c eeprom.c util.c vpd.c
+SOURCES = main.c config.c eeprom.c util.c vpd.c lib_proj2.c
 TARGET = proj2.elf
 
 all: $(TARGET)
 
-# link all sources into an ELF file
 $(TARGET): $(SOURCES)
-	$(CC) $(CFLAGS) $(USER) -o $@ $^ $(LIBS)
+	$(CC) $(CFLAGS) $(USER) -o $@ $^
 
-# clean build artifacts
 clean:
 	rm -f $(TARGET)
 
-# Phony targets (not real files)
 .PHONY: all clean

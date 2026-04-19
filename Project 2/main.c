@@ -6,7 +6,7 @@
  * Written By: Nathaniel Davis-Perez
  *
  * Entry point
- *    Initializes all subsystems, configures LED pattern &2 RTC time,
+ *    Initializes all subsystems, configures LED pattern and RTC time,
  *    prints system information to console, sets static IP flag, clears
  *    and populates event log, then enters cyclic executive loop.
  *    Within the loop, updates LED FSM, log EEPROM writeback, config EEPROM
@@ -22,65 +22,92 @@
 #include "rtc.h"
 #include "vpd.h"
 #include "eeprom.h"
+#include "util.h"
+#include <avr/io.h>   // for UBRR0* registers
 
 /* ----- Defined ----- */
-// External references to VPD data (model, manufacturer, token)
-extern char model[];
-extern char manufacturer[];
-extern char token[];
+
+// necessary helper function to override existing baud causing issue in uart output
+void uart_set_baud(unsigned long baud) {
+    unsigned int ubrr = (F_CPU / (16UL * baud)) - 1;
+    UBRR0H = (unsigned char)(ubrr >> 8);
+    UBRR0L = (unsigned char)ubrr;
+    UCSR0B |= (1 << TXEN0);
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+}
 
 /* ********************************************
  * main - program entry point
  *   args: none
  *   returns: never returns (infinite loop)
  *   behavior:
- *     1. Initialize all subsystems in prescribed order
- *     2. Configure LED blink pattern and RTC date/time
- *     3. Print system identification and VPD strings to console
- *     4. Set static IP flag and mark config as modified
- *     5. Clear event log and add three test records
- *     6. Enter infinite loop: update LED, log, config; dump EEPROM once
+ *     1. Initialize uart, config, led, log, rtc, vpd in that order
+ *     2. Set LED blink pattern to "--- -.-" (OK in Morse)
+ *     3. Set RTC date/time to "01/01/2019 00:00:00"
+ *     4. Enable global interrupts
+ *     5. Print identification and VPD strings to console
+ *     6. Set static IP flag and mark config as modified
+ *     7. Clear event log and add three test records
+ *     8. Enter infinite loop: update LED, log, config; dump EEPROM once
  */
 int main(void) {
-    // 1. Initialization stage
+    // 1. Initialization stage (order matters)
     uart_init();        // Initialize UART console
-    config_init();      // Initialize configuration (EEPROM backed)
-    led_init();         // Initialize LED control
-    log_init();         // Initialize event log (EEPROM backed)
-    rtc_init();         // Initialize RTC (Timer1)
-    vpd_init();         // Initialize Vital Product Data
-
-    // Set LED blink pattern to "--- -.-" (OK in Morse code)
-    led_set_pattern("--- -.-");
-
-    // Set RTC date/time to January 1, 2019, 00:00:00
-    rtc_set_datetime("01/01/2019 00:00:00");
-
-    // Enable global interrupts after all peripherals are ready
+    uart_set_baud(9600); // REQUIRED TO RUN
+    
+    // 2. Enable global interrupts after all peripherals are ready
     sei();
+    
+    uart_writestr("0: Start\r\n");
 
-    // 2. Write system information to console
-    uart_puts("SER 486 Project 2 – Nathaniel Davis-Perez\n\r");
-    uart_puts(model);
-    uart_puts("\n\r");
-    uart_puts(manufacturer);
-    uart_puts("\n\r");
-    uart_puts(token);
-    uart_puts("\n\r");
+    uart_writestr("1: config_init\r\n");
+    config_init();
+    uart_writestr("2: led_init\r\n");
+    led_init();
+    uart_writestr("3: log_init\r\n");
+    log_init();
+    uart_writestr("4: rtc_init\r\n");
+    rtc_init();
+    uart_writestr("5: vpd_init\r\n");
+    vpd_init();
 
-    // 3. Pre-main-loop tasks
-    // Set static IP flag and mark config as modified
+    uart_writestr("6: LED blink set\r\n");
+    led_set_blink("--- -.-");
+    rtc_set_by_datestr("01/01/2019 00:00:00");
+
+    uart_writestr("7: Printing VPD\r\n");
+    uart_writestr("SER 486 Project 2 – Nathaniel Davis-Perez\r\n");
+    uart_writestr(vpd.model);
+    uart_writestr("\r\n");
+    uart_writestr(vpd.manufacturer);
+    uart_writestr("\r\n");
+    uart_writestr(vpd.token);
+    uart_writestr("\r\n");
+    
+    // 3. Configure LED blink pattern and RTC date/time
+    led_set_blink("--- -.-");                 // OK in Morse code
+    rtc_set_by_datestr("01/01/2019 00:00:00");
+
+    // 4. Write system information to console
+    uart_writestr("SER 486 Project 2 – Nathaniel Davis-Perez\r\n");
+    uart_writestr(vpd.model);
+    uart_writestr("\r\n");
+    uart_writestr(vpd.manufacturer);
+    uart_writestr("\r\n");
+    uart_writestr(vpd.token);
+    uart_writestr("\r\n");
+
+    // 5. Pre-main-loop tasks
     config.use_static_ip = 1;
-    config_set_modified();     // Indicate that config needs to be written to EEPROM
+    config_set_modified();          // Indicate that config needs EEPROM writeback
 
-    // Clear event log and add three records
     log_clear();
-    log_add(0xaa);
-    log_add(0xbb);
-    log_add(0xcc);
+    log_add_record(0xaa);
+    log_add_record(0xbb);
+    log_add_record(0xcc);
 
-    // 4. Cyclic executive loop
-    uint8_t dumped = 0;        // Flag to ensure EEPROM dump occurs only once
+    // 6. Cyclic executive loop
+    unsigned char dumped = 0;       // Flag to ensure EEPROM dump occurs only once
 
     while (1) {
         // Update LED blink finite state machine

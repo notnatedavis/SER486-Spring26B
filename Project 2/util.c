@@ -16,6 +16,7 @@
 /* ----- Imports ----- */
 #include "util.h"
 #include "uart.h"
+#include <avr/io.h>
 
 /* ********************************************
  * update_checksum - set last byte so total sum becomes zero

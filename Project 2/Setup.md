@@ -12,15 +12,15 @@
 
 - validate installs
 - `avr-gcc --version`
-- `avrdude -v`
 - `simavr -h`
 - ``
 
 ### Configuration
 
-- create a `.gdbinit` file in working directory
+- (debugging) create a `.gdbinit` file in working directory
     - initialize with `avr-gdb -x .gdbinit file.elf`
+- 
 
 ### Simulate 
 
-- assuming in directory of actions, `simavr -m atmega328p file.elf` 
+- assuming in directory of actions, `simavr -m atmega328p -f 16000000 --uart=0,9600,file=output.txt file.elf`
