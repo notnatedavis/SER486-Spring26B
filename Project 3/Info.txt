@@ -1,7 +1,14 @@
 Submission : 
 
-    > files : 
-        > 
+    > files : (maybe some from previous + remade comp files)
+        > * tempfsm.c
+        > * tempfsm.h
+        > * util.c
+        > * util.h
+        > * process_packet.h
+        > * wdt.c
+        > * wdt.h
+        > alarm ? uart ? led ?
     > ss Build
     > ss Output
     > pdf w/ calculations

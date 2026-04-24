@@ -1,1 +1,204 @@
-> 
+> Device Class Diagram : 
+
+    > 'ethernet' <<use>> 'spi'
+    > 'wdt' , 'temp' exist
+    > 'wdt' & 'tempfsm' are linked
+    > 'tempfsm' <<use>> 'led' , 'tempfsm' <<use>> 'alarm'
+    > 'config' <<use>> 'eeprom'
+    > 'vpd' <<use>> 'eeprom'
+    > 'log' <<use>> 'eeprom' , 'log' <<use>> 'rtc'
+    > 'rtc' <<use>> 'timer1'
+    > 'led' <<use>> 'delay'
+    > 'alarm' <<use>> 'usart'
+
+WDT class :
+    Internal State :
+        > -init() : void
+        > +reset () : void
+        > +force_restart() : void
+        > -__vector_6()
+
+    Member Functions :
+        > -init() : void – This function initializes the watchdog timer for a timeout period of 2 seconds.  
+            Upon timeout, the watchdog will first generate an interrupt, followed by a system 
+            reset.  Once init is called, wdt.reset() must be called at least once every two seconds 
+            in order to avoid a watchdog timeout.
+        > +reset () : void – resets the watchdog timer to prevent a timeout.
+        > +force_restart() : void – When invoked, this function disables the watchdog interrupt and 
+            waits for the watchdog to timeout (generating a system reset).
+        > - void __vector_6() – This function is enabled when the watchdog is initialized.  When 
+            invoked, the function turns on the LED, adds a EVENT_WDT to the system event log 
+            and attempts to write back any modified log and configuration information before the 
+            second stage of the watchdog timer forces a system reset
+
+    *Noted : Use log.update_noisr(), and config.update_noisr() to write back caches in the 
+             watchdog ISR.  Log writeback may require up to 16 calls to flush the cache
+             Use pragmas to force optimization to -Os around this sequence , Use __builtin_avr_wdr()
+             to reset the watchdog timer*
+TempFSM class :
+    Internal State :
+        > open to customization
+
+    Member Functions : 
+        > +init() – perform any class-specific initialization, including setting the state’s initial value;
+        > +reset() – reset the finite state machine’s state to NORM1.
+        > +update(int tcurrent,int tcrit_h,int twarn_h,int tcrit_l,int twarn_l) – updates the state of the fsm based on the provided current temperature and temperature 
+            limit arguments.  Upon state transitions, LED blink behavior will be updated (fast blink for critical, slow 
+            blink for warning).  Alarms must also be sent according to the state diagram using the instructor-
+            provided alarm class functions
+
+        > tcurrent = the device’s current temperature
+        > tcrit_h = the critical high temperature limit for the device
+        > twarn_h = the warning high temperature limit for the device
+        > tcrit_l = the critical low temperature limit for the device
+        > twarn_l = the warning low temperature limit for the device
+
+    State Diagram :
+
+        WARNLO2 :
+            goes to
+            [tcurrent>twarn_l] -> NORM2
+            [tcurrent<=tcrit_l] -> CRITICALLO
+
+            receives
+            CRITICALLO -> [tcurrent>tcrit_l]
+
+        NORM2 : 
+            goes to
+            [tcurrent<=twarn_l] -> WARNLO1
+            [tcurrent>=twarn_h] / alarm.send(EVENT_HI_WARN) led.setblink(“-”) -> WARNHI1
+
+            receives
+            WARNLO1 -> [tcurrent>twarn_l]
+            WARNLO2 -> [tcurrent>twarn_l]
+
+        WARNHI1 : 
+            goes to
+            [tcurrent>=tcrit_h] / alarm.send(EVENT_HI_ALARM) -> CRITICALHI
+            [tcurrent<twarn_h] -> NORM3
+
+            receives
+            NORM3 -> [tcurrent>=twarn_h]
+            NORM1 -> [tcurrent>=twarn_hi] / alarm.send(EVENT_HI_WARN)
+            NORM2 -> [tcurrent>=twarn_h] / alarm.send(EVENT_HI_WARN) led.setblink(“-”)
+
+        CRITICALHI :
+            goes to
+            [tcurrent<tcrit_h] -> WARNHI2
+
+            receives
+            WARNHI2 -> [tcurrent>=tcrit_h]
+            WARNHI1 -> [tcurrent>=tcrit_h] / alarm.send(EVENT_HI_ALARM)
+
+        NORM1 :
+            goes to
+            [tcurrent>=twarn_hi] / alarm.send(EVENT_HI_WARN) -> WARNHI1
+            [tcurrent<=twarn_l] / alarm.send(EVENT_LO_WARN) -> WARNLO1
+
+            receives
+            WARNHI1 -> [tcurrent>=twarn_hi] / alarm.send(EVENT_HI_WARN) 
+            WARNLO1 -> [tcurrent<=twarn_l] / alarm.send(EVENT_LO_WARN) 
+
+        WARNHI2 :
+            goes to
+            [tcurrent<twarn_h] -> NORM3
+            [tcurrent>=tcrit_h] -> CRITICALHI
+
+            receives
+            CRITICALHI -> [tcurrent<tcrit_h]
+
+        NORM3 :
+            goes to
+            [tcurrent<=twarn_l] / alarm.send(EVENT_LO_WARN) -> WARNLO1
+            [tcurrent>=twarn_h] -> WARNHI1
+
+            receives
+            WARNHI1 -> [tcurrent<twarn_h]
+            WARNHI2 -> [tcurrent<twarn_h]
+
+        WARNLO1 :
+            goes to
+            [tcurrent>twarn_l] -> NORM2
+            [tcurrent<=tcrit_l] / alarm.send(EVENT_LO_ALARM) -> CRITICALLO
+
+            receives
+            NORM2 -> [tcurrent<=twarn_l]
+            NORM1 -> [tcurrent<=twarn_l] / alarm.send(EVENT_LO_WARN)
+            NROM3 -> [tcurrent<=twarn_l] / alarm.send(EVENT_LO_WARN)
+
+        CRITICALLO :
+            goes to
+            [tcurrent>tcrit_l] -> WARNLO2
+
+            receives
+            WARNLO2 -> [tcurrent<=tcrit_l]
+            WARNLO1 -> [tcurrent<=tcrit_l] / alarm.send(EVENT_LO_ALARM)
+
+        *Noted : All state transitions are triggered by 1 second timeout , On exit, LED should be set to “.” if the next state is a critical state, “-” if the next state is a warning state, 
+                 and “ “ for others , Use the alarm class to send the appropriate alarm event code.  Event codes are found in log.h
+
+Utility Functions : (util.c / process_packet.h)
+
+    int update_tcrit_hi(int value):int
+        Update the configuration tcrit_hi limit with the specified value.  This function is called by the packet command 
+        parser.  It should perform range checking on the value.  Valid inputs for tcrit_hi must be greater than twarn_hi
+        but less than or equal to 0x3FF.  Returns 0 if there is no error, otherwise, returns 1;
+
+    int update_twarn_hi(int value):int
+        Update the configuration twarn_hi limit with the specified value. This function is called by the packet command 
+        parser. It should perform range checking on the value.  Valid inputs for twarn_hi must be greater than twarn_lo
+        and less than tcrit_hi.  Returns 0 if there is no error, otherwise, returns 1;
+
+    update_twarn_lo(int value):int
+        Update the configuration twarn_lo limit with the specified value. This function is called by the packet command 
+        parser. It should perform range checking on the value.  Valid inputs for twarn_lo must be greater than tcrit_lo
+        and less than twarn_hi.  Returns 0 if there is no error, otherwise, returns 1;
+
+    update_tcirt_lo(int value):int
+        Update the configuration tcrit_lo limit with the specified value. This function is called by the packet command 
+        parser. It should perform range checking on the value. Valid inputs for tcrit_lo must be less than twarn_lo.  
+        Returns 0 if there is no error, otherwise, returns 1;
+
+Project 3 Command syntax
+
+    GET /device
+        • Displays a JSON representation of the device state on the console
+
+    PUT /device/config?tcrit_hi=<value>
+
+    PUT /device/config?tcrit_lo=<value>
+    PUT /device/config?twarn_hi=<value>
+    PUT /device/config?twarn_lo=<value>
+        • Writes a new value of the associated configuration parameter
+    DELETE /device/log
+        • Deletes all log entries
+    PUT /device?reset=“true”
+        • Force a device reset
+    Use control-C in the terminal window to “connect” to the device.  
+    During normal operation, alarm outputs will be sent to the terminal window
+
+    Response Format - GET 
+
+        *hint vpd struct:
+        {
+            "vpd":{
+                "model":"Sandy",
+                "manufacturer":"Douglas",
+                "serial_number":"_UNASSIGNED",
+                "manufacture_date":"01/01/2000",
+                "mac_address":"44:4F:55:53:41:4E",
+                "country_code":"USA"
+            }
+            "tcrit_hi":1023,
+            "twarn_hi":1022,
+            "tcrit_lo":0,
+            "twarn_lo":1,
+            "temperature":88,
+            "state":CRIT_HI,
+            "log":[
+                {
+                    "timestamp":"01/01/2000 00:00:00","eventnum":0
+                }
+            ]
+        }
+        *
