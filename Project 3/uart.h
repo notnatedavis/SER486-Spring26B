@@ -23,5 +23,4 @@ void uart_writehex16(unsigned int num); /* output a 16-bit hexadecimal value as 
 void uart_writedec32(signed long num);  /* output a 32-bit signed decimal value as ascii text */
 void uart_writeip(unsigned char * ip);  /* write the text representation of an IP address to the uart */
 
-
 #endif // UART_H_INCLUDED

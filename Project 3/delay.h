@@ -6,7 +6,7 @@
  *
  * Author:   Doug Sandy
  * Date:     3/1/2018
- * Revision: 1.0
+ * Revision: 1.0 (modified to add delay_init)
  *
  * Copyright(C) 2018, Arizona State University
  * All rights reserved
@@ -15,14 +15,20 @@
 #ifndef DELAY_H_INCLUDED
 #define DELAY_H_INCLUDED
 
+/* initialise the timer0 hardware for 1ms ticks */
+void delay_init(void);
+
 /* get the current tick counter value for the specified instance */
 unsigned delay_get(unsigned num);
 
 /* set the counter limit and reset the count for the specified instance */
-void     delay_set(unsigned int num, unsigned int msec);
+void delay_set(unsigned int num, unsigned int msec);
 
 /* return 1 if the specified instance of the counter has reached its
 * limit, otherwise, return 0 */
 unsigned delay_isdone(unsigned int num);
+
+/* force a full reconfiguration of Timer0 (optional) */
+void delay_reinit(void);
 
 #endif // DELAY_H_INCLUDED

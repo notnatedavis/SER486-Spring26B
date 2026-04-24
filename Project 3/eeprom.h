@@ -1,38 +1,50 @@
-/********************************************************
+/* ********************************************
  * eeprom.h
  *
- * this file provides function declarations for SER486
- * eeprom class member functions.
+ * SER486 - Project 2 EEPROM
+ * Spring '26
+ * Written By: Nathaniel Davis-Perez
  *
- * Author:   Doug Sandy
- * Date:     4/18/2018
- * Revision: 1.0
+ * Provides interface to buffered, interrupt-driven EEPROM operations.
  *
- * Copyright(C) 2018, Arizona State University
- * All rights reserved
- *
+ * Functions:
+ *   eeprom_readbuf() - blocking read from EEPROM
+ *   eeprom_writebuf() - non‑blocking buffered write (interrupt driven)
+ *   eeprom_isbusy() - check if a write is in progress
  */
+
+/* ----- Defined ----- */
 #ifndef EEPROM_H_INCLUDED
 #define EEPROM_H_INCLUDED
 
-/* place the data (specified by buf and size) into the write buffer for later writing to
-* the EEPROM.  The addr parameter specifies the location to write the data to.
-* This function should not be called when another write is in progress.
-*/
-void eeprom_writebuf(unsigned int addr, unsigned char *buf, unsigned char size);
+/* ----- Imports ----- */
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
-/* program the data (specified by buf and size) into the eeprom without use of
-* the interrupt service routine.  The addr parameter specifies the location to
-* write the data to.
-*/
-void eeprom_writebuf_noisr(unsigned int addr, unsigned char *buf, unsigned char size);
+/* ********************************************
+ * eeprom_readbuf - blocking read of bytes from EEPROM
+ *   args: addr - starting address in EEPROM
+ *         buf - pointer to destination buffer
+ *         size - number of bytes to read (0-255)
+ *   returns: nothing
+ */
+void eeprom_readbuf(unsigned int addr, unsigned char* buf, unsigned char size);
 
-/* read a specified amount of data (size) from the EEPROM starting at a
-* specified address (addr) and places it in the specified buffer (buf).
-*/
-void eeprom_readbuf(unsigned int addr, unsigned char *buf, unsigned char size);
+/* ********************************************
+ * eeprom_writebuf - start buffered write to EEPROM
+ *   args: addr - starting address in EEPROM
+ *         buf - pointer to source buffer
+ *         size - number of bytes to write (0-255)
+ *   returns: nothing
+ *   note: caller must ensure eeprom_isbusy() returns 0
+ */
+void eeprom_writebuf(unsigned int addr, unsigned char* buf, unsigned char size);
 
-/* return 0 if the eeprom is writing from its write buffer, otherwise, return 1.*/
-int eeprom_isbusy();
+/* ********************************************
+ * eeprom_isbusy - check if a write is in progress
+ *   args: none
+ *   returns: 1 if busy, else 0
+ */
+unsigned char eeprom_isbusy(void);
 
-#endif // EEPROM_H_INCLUDED
+#endif /* EEPROM_H_INCLUDED */

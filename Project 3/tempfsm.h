@@ -20,9 +20,11 @@
 void tempfsm_update(int current, int hicrit, int hiwarn, int locrit, int lowarn);
 
 /* reset the state machine to the initial state (normal) */
-void tempfsm_reset();
+void tempfsm_reset(void);
 
 /* initialize the finite state machine */
-void tempfsm_init();
+void tempfsm_init(void);
+
+const char* tempfsm_get_state(void);
 
 #endif // TEMPFSM_H_INCLUDED

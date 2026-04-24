@@ -16,14 +16,14 @@
 #define WDT_H_INCLUDED
 
 /* initialize the watchdog timer for a 2 second timeout and interrupt+reset mode */
-void wdt_init();
+void wdt_init(void);
 
 /* reset the watchdog timer so that it does not time out. */
-void wdt_reset();
+void wdt_reset(void);
 
 /* force a system restart (reset only, no interrupt) by disabling the watchdog
 * interupt and waiting for a watchdog timeout.
 */
-void wdt_force_restart();
+void wdt_force_restart(void);
 
 #endif // WDT_H_INCLUDED

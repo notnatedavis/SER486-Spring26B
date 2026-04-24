@@ -17,8 +17,9 @@
 #define UTIL_H_INCLUDED
 
 #ifdef __cplusplus
-   extern "C" {
+extern "C" {
 #endif
+
 /* update the checksum (last byte) of the specifed data so
 * that the sum of all the bytes will be zero
 */
@@ -34,7 +35,7 @@ void dump_eeprom(unsigned int start_address, unsigned int numbytes);
 
 
 #ifdef __cplusplus
-   }
+}
 #endif
 
 #endif // UTIL_H_INCLUDED

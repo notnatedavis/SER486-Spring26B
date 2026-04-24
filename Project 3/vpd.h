@@ -1,36 +1,44 @@
-/********************************************************
- * config.h
+/* ********************************************
+ * vpd.h
  *
- * this file provides declarations for SER486
- * VPD (vital product data) class library functions.
+ * SER486 - Project 2 EEPROM
+ * Spring '26
+ * Written By: Nathaniel Davis-Perez
  *
- * Author:   Doug Sandy
- * Date:     4/5/2018
- * Revision: 1.0
+ * defines Vital Product Data (VPD) struct and public interface
+ * VPD is stored in EEPROM at address 0x0000
  *
- * Copyright(C) 2018, Arizona State University
- * All rights reserved
- *
+ * Functions:
+ *   vpd_init() - load VPD from EEPROM, initialising with defaults if invalid
  */
+
+/* ----- Defined ----- */
 #ifndef VPD_H_INCLUDED
 #define VPD_H_INCLUDED
-    typedef struct {
-        char token[4];
-        char model[12];
-        char manufacturer[12];
-        char serial_number[12];
-        unsigned long manufacture_date;
-        unsigned char mac_address[6];
-        char country_of_origin[4];
-        unsigned char checksum;
-    } vpd_struct;
 
-    /* "public member functions and data" */
-    extern vpd_struct vpd;
+/* VPD struct */
+typedef struct {
+    char token[4]; /* "SER" */
+    char model[12]; /* First Name (max 11 chars + null) */
+    char manufacturer[12]; /* Last Name (max 11 chars + null) */
+    char serial_number[12]; /* any string */
+    unsigned long manufacture_date;
+    unsigned char mac_address[6];
+    char country_of_origin[4]; /* "USA" */
+    unsigned char checksum;
+} vpd_struct;
 
-    /* initialize the in-memory vpd structure from the EEPROM */
-    void vpd_init();
+/* Public VPD data (can be accessed directly) */
+extern vpd_struct vpd;
 
-    /* debug code */
-    void vpd_dump();
-#endif // VPD_H_INCLUDED
+/* ********************************************
+ * vpd_init - initialises VPD from EEPROM; writes defaults if invalid
+ *   args: none
+ *   returns: nothing
+ */
+void vpd_init(void);
+
+/* debug code */
+void vpd_dump();
+
+#endif /* VPD_H_INCLUDED */

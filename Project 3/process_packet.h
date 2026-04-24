@@ -37,6 +37,6 @@ int update_tcrit_lo(int value);
 int update_twarn_lo(int value);
 
 /* parse the current packet and take actions based on the type of request */
-void parse_and_send_response();
+void parse_and_send_response(void);
 
 #endif // PROCESS_PACKET_H_INCLUDED

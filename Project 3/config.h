@@ -1,54 +1,57 @@
-/********************************************************
+/* ********************************************
  * config.h
  *
- * this file provides declarations for SER486
- * configuration class library functions.
+ * SER486 - Project 2 EEPROM
+ * Spring '26
+ * Written By: Nathaniel Davis-Perez
  *
- * Author:   Doug Sandy
- * Date:     4/5/2018
- * Revision: 1.0
+ * Defines configuration structure and public interface for
+ * managing system configuration stored in EEPROM at address 0x0040.
  *
- * Copyright(C) 2018, Arizona State University
- * All rights reserved
- *
+ * Functions:
+ *   config_init() - load configuration from EEPROM
+ *   config_update() - write back modified configuration
+ *   config_set_modified() - mark configuration as dirty
  */
+
+/* ----- Defined ----- */
 #ifndef CONFIG_H_INCLUDED
 #define CONFIG_H_INCLUDED
-    typedef struct {
-        char          token[4];
-        int           hi_alarm;
-        int           hi_warn;
-        int           lo_alarm;
-        int           lo_warn;
-        char          use_static_ip;
-        unsigned char static_ip[4];
-        unsigned char checksum;
-    } config_struct;
 
-    /* "public member functions and data" */
-    extern config_struct config;
+/* Config structure */
+typedef struct {
+    char token[4]; /* "ASU" */
+    unsigned int hi_alarm; /* 0x3FF */
+    unsigned int hi_warn; /* 0x3FE */
+    unsigned int lo_alarm; /* 0x0000 */
+    unsigned int lo_warn; /* 0x0001 */
+    char use_static_ip; /* 0 = DHCP, 1 = static */
+    unsigned char static_ip[4]; /* e.g. {192,168,1,100} */
+    unsigned char checksum;
+} config_struct;
 
-    /* initialize the config object, reading the contents from the eeprom */
-    void config_init();
+/* Public config data (can be accessed directly) */
+extern config_struct config;
 
-    /* write back the config to the eeprom write buffer. */
-    void config_update();
+/* ********************************************
+ * config_init - initialises config from EEPROM; writes defaults if invalid
+ *   args: none
+ *   returns: nothing
+ */
+void config_init(void);
 
-    /* write back the config to the eeprom if the eeprom is not busy.  For flushing the
-    * cache during a watchdog event, only the first call to this function will do anything
-    * since the cache will no longer be modified after the first call.
-    */
-    void config_update_noisr();
+/* ********************************************
+ * config_update - writes modified config to EEPROM if not busy
+ *   args: none
+ *   returns: nothing
+ */
+void config_update(void);
 
-    /* set the modified flag for the configuration data */
-    void config_set_modified();
+/* ********************************************
+ * config_set_modified - marks config as modified for later update
+ *   args: none
+ *   returns: nothing
+ */
+void config_set_modified(void);
 
-    /* debug code */
-    void config_dump();
-
-    /* private member functions and data
-    static unsigned char modified
-    int config_is_data_valid()
-    void config_update_checksum(char*data)
-    */
-#endif // CONFIG_H_INCLUDED
+#endif /* CONFIG_H_INCLUDED */
