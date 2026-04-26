@@ -41,6 +41,15 @@ void eeprom_readbuf(unsigned int addr, unsigned char* buf, unsigned char size);
 void eeprom_writebuf(unsigned int addr, unsigned char* buf, unsigned char size);
 
 /* ********************************************
+ * eeprom_writebuf_noisr - blocking write to EEPROM (no interrupts)
+ *   args: addr - starting address in EEPROM
+ *         buf - pointer to source buffer
+ *         size - number of bytes to write (0-255)
+ *   returns: nothing
+ */
+void eeprom_writebuf_noisr(unsigned int addr, unsigned char *buf, unsigned char size);
+
+/* ********************************************
  * eeprom_isbusy - check if a write is in progress
  *   args: none
  *   returns: 1 if busy, else 0

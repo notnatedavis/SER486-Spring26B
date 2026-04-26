@@ -30,6 +30,8 @@
 #include "uartsocket.h"
 #include "eeprom.h"
 #include "tempfsm.h"
+#include "wdt.h"
+#include <stdlib.h> // atoi()
 #include <string.h>  /* for strtok, strcmp, etc. */
 
 /* access the global temperature from main.c */

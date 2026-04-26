@@ -38,7 +38,7 @@ void uart_writechar(char ch) {
     UDR0 = ch;
 }
 
-void uart_writestr(char *str) {
+void uart_writestr(const char *str) {
     while (*str) uart_writechar(*str++);
 }
 
@@ -153,6 +153,12 @@ void log_update(void) {
     if (!log_modified) return;
     if (eeprom_isbusy()) return;
     eeprom_writebuf(LOG_EEPROM_ADDR, (unsigned char*)log_ram, sizeof(log_ram));
+    log_modified = 0;
+}
+
+void log_update_noisr(void) {
+    if (!log_modified) return;
+    eeprom_writebuf_noisr(LOG_EEPROM_ADDR, (unsigned char*)log_ram, sizeof(log_ram));
     log_modified = 0;
 }
 

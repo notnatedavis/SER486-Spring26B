@@ -17,7 +17,7 @@
 
 void uart_init(void);                   /* initialize the uart hardware */
 void uart_writechar(char ch);           /* write a single character to the uart */
-void uart_writestr(char * str);         /* write an ascii string to the uart */
+void uart_writestr(const char * str);   /* write an ascii string to the uart */
 void uart_writehex8(unsigned char num); /* output a 8-bit hexadecimal value as ascii text */
 void uart_writehex16(unsigned int num); /* output a 16-bit hexadecimal value as ascii text */
 void uart_writedec32(signed long num);  /* output a 32-bit signed decimal value as ascii text */

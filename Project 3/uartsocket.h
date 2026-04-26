@@ -24,7 +24,7 @@ void uartsocket_init(void);
 void uartsocket_writechar(char ch);
 
 /* write an ascii string to the uart */
-void uartsocket_writestr(char * str);
+void uartsocket_writestr(const char * str);
 
 /* output a 8-bit hexadecimal value as ascii text */
 void uartsocket_writehex8(unsigned char num);
@@ -33,6 +33,8 @@ void uartsocket_writehex8(unsigned char num);
 void uartsocket_writehex16(unsigned int num);
 
 void uartsocket_writedec32(signed long num);
+
+void uartsocket_poll(void);
 
 /* output a 32-bit signed decimal value as ascii text */
 unsigned char uartsocket_is_connected();

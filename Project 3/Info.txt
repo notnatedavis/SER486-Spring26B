@@ -18,4 +18,4 @@ Usage :
 
     > make clean
     > make
-    > simavr -m atmega328p --uart0=stdio -v proj2.elf
+    > simavr -m atmega328p --uart0=stdio -v proj3.elf

@@ -82,6 +82,13 @@ void config_update(void) {
     modified = 0;
 }
 
+void config_update_noisr(void) {
+    if (!modified) return;
+    update_checksum((unsigned char*)&config, sizeof(config_struct));
+    eeprom_writebuf_noisr(CONFIG_BASE_ADDR, (unsigned char*)&config, sizeof(config_struct));
+    modified = 0;
+}
+
 /* ********************************************
  * config_set_modified - marks config as modified for later update
  *   args: none

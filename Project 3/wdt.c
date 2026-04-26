@@ -27,7 +27,11 @@
 #include "alarm.h" // not used here  included for completeness 
 
 /* ----- Watchdog timer interrupt vector ----- */
-ISR(WDT_vect, ISR_NAKED) {
+/* Force the watchdog ISR to be compiled with size optimization (-Os).
+ * This ensures the smallest possible code for the critical cache flush sequence. */
+#pragma GCC push_options
+#pragma GCC optimize ("-Os")
+ISR(WDT_vect) {
     /* turn on LED to signal watchdog event */
     led_on();
 
@@ -35,21 +39,17 @@ ISR(WDT_vect, ISR_NAKED) {
     log_add_record(EVENT_WDT);
 
     /* flush caches with interrupts disabled */
-    #pragma GCC push_options
-    #pragma GCC optimize ("-Os")
-    {
-        unsigned char i;
-        /* up to 16 calls may be needed to flush the entire log */
-        for (i = 0; i < 16; i++) {
-            log_update_noisr();
-        }
-        config_update_noisr();   /* first call flushes config if modified */
+    unsigned char i;
+    /* up to 16 calls may be needed to flush the entire log */
+    for (i = 0; i < 16; i++) {
+        log_update_noisr();
     }
-    #pragma GCC pop_options
+    config_update_noisr();   /* first call flushes config if modified */
 
     /* The watchdog will issue a system reset after the next timeout.
        The RESET is automatic – no need to stay in the ISR */
 }
+#pragma GCC pop_options
 
 /* ----- Public functions ----- */
 

@@ -48,6 +48,13 @@ void config_init(void);
 void config_update(void);
 
 /* ********************************************
+ * config_update_noisr - write back modified config without using interrupts
+ *   args: none
+ *   returns: nothing
+ */
+void config_update_noisr(void);
+
+/* ********************************************
  * config_set_modified - marks config as modified for later update
  *   args: none
  *   returns: nothing

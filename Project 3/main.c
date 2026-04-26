@@ -49,10 +49,14 @@ int current_temperature = 88;  /* the most recent temperature reading */
 */
 int main(void)
 {
+    /* enable global interrupts early so EEPROM writes can complete */
+    sei();
+
     /* initialize the hardware and device state */
     config_init();
     vpd_init();
     rtc_init();
+
     log_init();
     alarm_init();
     uart_init();
@@ -65,7 +69,7 @@ int main(void)
 
     /* print the banner to the debug port */
     uart_writestr("SER486 Project 3 - Integration\r\n");
-    uart_writestr( STRINGIZE_VALUE(YOURNAME) );
+    uart_writestr( STRINGIZE_VALUE(Nathaniel Davis-Perez) );
     uart_writestr("\r\n");
 
     /* log the startup event */
@@ -82,6 +86,8 @@ int main(void)
     while(1) {
        /* reset  the watchdog timer every loop */
        wdt_reset();
+
+       uartsocket_poll();
 
        /* update the led state based on the blink code */
        led_update();

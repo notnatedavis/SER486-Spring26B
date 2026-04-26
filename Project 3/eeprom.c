@@ -95,6 +95,18 @@ void eeprom_writebuf(unsigned int addr, unsigned char* buf, unsigned char size) 
     /* noted : ISR handles first byte's completion + advance to next */
 }
 
+void eeprom_writebuf_noisr(unsigned int addr, unsigned char *buf, unsigned char size) {
+    for (unsigned char i = 0; i < size; i++) {
+        while (EECR & (1 << EEPE));  // wait for completion
+        EEARL = (unsigned char)(addr & 0xFF);
+        EEARH = (unsigned char)((addr >> 8) & 0xFF);
+        EEDR = buf[i];
+        EECR |= (1 << EEMPE);
+        EECR |= (1 << EEPE);
+        addr++;
+    }
+}
+
 /* ********************************************
  * eeprom_isbusy - check if a write is in progress
  *   args: none
