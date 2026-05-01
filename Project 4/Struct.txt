@@ -1,0 +1,264 @@
+Network Context : 
+    > DHCP Server (192.168.1.1) has a connection with this Device (192.168.1.y) via DHCP REQUESTS SOCKET 2
+
+    > SNTP Server (192.168.1.1) has a connection with this Device (192.168.1.y) via NTP REQUESTS SOCKET 3
+
+    > Master Controller (192.168.1.x) has a connection with this Device (192.168.1.y) via ALARMS SOCKET 3 && CLIENT REQUESTS SOCKET 0
+
+    > this Device (192.168.1.y) has a connection with DHCP Server (192.168.1.1) via DHCP REQUESTS SOCKET 2
+    > this Device (192.168.1.y) has a connection with SNTP Server (192.168.1.1) via NTP REQUESTS SOCKET 3
+    > this Device (192.168.1.y) has a connection with Master Controller (192.168.1.x) via ALARMS SOCKET 3 && CLIENT REQUESTS SOCKET 0
+
+Startup Sequence :
+    > Device
+        1.1 DHCP Discover() -> DHCP SERVER
+        2.1 DHCP Request() -> DHCP Server
+        3.1 SNTP Request() -> SNTP Server
+        4.2 Fulfill Master Controller HTTP Request
+        5.2 Fulfill Master Controller HTTP Request
+    > DHCP Server
+        1.2 DHCP Offer -> Device
+        2.2 DHCPACK -> Device
+    > SNTP Server
+        3.1 SNTP Response -> Device
+    > Master Controller
+        4.1 HTTP Request(GET, PUT, DELETE)() -> Device
+        5.1 HTTP Request() -> Device
+    
+Class Diagram :
+    > `device` includes {`socket`, `ntp`, `dhcp`, `alarm` , `ledfsm`, `vpd`, `config`, `uart`, `wdt`}
+
+    > `socket` includes `W51`
+    > `ntp` includes `udpsocket`
+    > `dhcp` includes `udpsocket`
+    > `alarm` includes {`udpsocket`, `rtc`}
+    > `ledfsm` includes {`alarm`, `led`, `temp`, `log`}
+    > `vpd` includes `eeprom`
+    > `config` includes `eeprom`
+
+    > `udpsocket` includes `W51`
+    > `rtc` includes `timer1`
+    > `led` includes `delay`
+    > `W51` includes `spi`
+
+    > {`wdt`, `uart`, `eeprom`, `temp`, `delay`, `timer1`, `spi`} exist
+
+Main.c :
+    1. Initialize Hardware (pseudo in this case for demo on solo pc)
+    2. Display Banner Message
+    X. Point 1
+    3. Reset Watchdog Timer
+        3.1 after 1 second read temperature
+        3.2 new alarms, log and send alarms
+        3.3
+            a. If (socket is open) {new data to proess, read request and send response}
+            b. If (socket is not open) {open socket and enter listen mode}
+        3.4 Update Eeprom (log / config)
+
+Socket Class : 
+    > + recv_compare(s:unsigned char,str:unsigned char*) : boolean
+    > + recv_int(s:unsigned char,x:int*) : boolean
+    > + recv(s:unsigned char,buf:unsigned char*,len:int) : int
+    > + recv_available(s:unsigned char) : int
+    > + flush_line(s:unsigned char) : void
+    > + is_blank_line(s:unsigned char) : boolean
+    > + received_line(s:unsigned char) : boolean
+    > + writemacaddress(s : unsigned char, mac : unsigned char*) : void
+    > + writedate(s:unsigned char,datenum:unsigned long) : void
+    > + writedec32(s:unsigned char,x:unsigned int) : void
+    > + writehex16(s:unsigned char,x:unsigned int) : void
+    > + writehex8(s:unsigned char,x:unsigned char) : void
+    > + writequotedstring(s:unsigned char,str:char*) : void
+    > + writestr(s:unsigned char,str:char*) : void
+    > + writechar(s:unsigned char,c:char) : void
+    > + send(s:unsigned char,buf:unsigned char*,len:unsigned int) : unsigned int
+    > + peek(s:unsigned char,buf:unsigned char*) : unsigned int
+    > + is_closed : boolean
+    > + is_established(s:unsigned char) : boolean
+    > + is_listening(s:unsigned char) : boolean
+    > + is_active(s:unsigned char) : boolean
+    > + listen(s:unsigned char) : boolean
+    > + close(s:unsigned char) : void
+    > + disconnect(s:unsigned char) : void
+    > + connect(s:unsigned char, addr:unsigned char*,port:unsigned int) : void
+    > + open(s : unsigned char, p : unsigned int) : boolean
+
+Socket State Control Functions : 
+    > socket_open()
+        Initializes the socket and places it in the “closed” state
+
+    > socket_listen()
+        Places the socket in listen mode – transitions from “CLOSED” state to “LISTEN” state
+
+    > socket_close()
+        Force the port to be closed immediately, breaking any established connections. The 
+        socket returns to the “CLOSED” state
+
+    > socket_is_listening()
+        The socket is in the “LISTEN” state
+
+    > socket_is_active()
+        The socket is either connected or in the process of establishing a connection
+
+    > socket_is_closed()
+        The socket is in the “CLOSED” state
+
+    > socket_is_established()
+        The socket is in the “ESTAB” state
+
+Socket Write Functions : 
+    > /* socket send/write */
+      socket_send(s, const * buf, len) 
+      socket_writechar(s, const ch)
+      socket_writestr(s, const char*str)
+      socket_writequotedstring(s, const char*str)
+      socket_writehex8(s, const x)
+      socket_writehex16(s, const x)
+      socket_writedec32(s, n)
+      socket_writedate(s, long datenum)
+      socket_write_macaddress(s, *mac_address)
+
+    > <contents of the buffer are sent>
+      a single character is sent
+      a null-terminated string is sent
+      “a string is sent in quotes”
+      FB (a 8 bit hex number is sent)
+      10AF (a 16 bit hex number is sent)
+      -135 (a decimal number is sent)
+      “04/18/2018”
+      “BA:AD:BE:EF:FE:ED"
+
+Socket Receive Functions : 
+    > socket_recv_available(s)
+        • returns how many bytes (characters) are available in the socket’s receive buffer 
+    > socket_received_line(s)
+        • returns 1 if a CRLF has been received in the socket’s receive buffer.  The contents 
+          of the receive buffer are not altered
+    > socket_is_blank_line(s)
+        • returns 1 if a blank line is the next data within the socket’s receive buffer.  The 
+          contents of the receive buffer are not altered
+    > socket_peek(s, *buf) 
+        • Fills the specified character buffer with the first character present in the socket’s 
+          receive buffer.  The contents of the buffer are not altered
+    > socket_recv(s, * buf, len)
+        • Receive a certain number of characters from the receive buffer and place them in the 
+          specified character buffer
+    > socket_recv_int(s, *num)
+        • Receive a string representation of an integer number from the receive buffer and 
+          convert it to an integer. The integer value is placed at *num.  Returns 1 on success, 
+          0 on error
+    > socket_recv_compare(s, const char*str)
+        • Compare the first byte of the receive buffer with the specified string.  If they match, 
+          the bytes are removed from the buffer and the function returns a value of 1.  Otherwise, 
+          the contents of the receive buffer are not altered and the function returns 0
+    > socket_flush_line(s)
+        • Flush characters from the receive buffer until a CRLF is found
+
+FSM2 - Processing Application Protocol : 
+    > Message Section 1
+        goes to Flush
+        goes to Message Section 2
+
+    > Message Section 2
+        goes to Flush
+        goes to Message Section N
+
+    > Message Section N
+        goes to Flush
+        goes to Process Message
+
+    > Flush
+        goes to Send Error Response
+
+    > Send Error Response
+        goes to Message Section 1
+
+    > Process Message
+        goes to Send Response
+
+    > Send Response
+        goes to Message Section 1
+
+HTTP Format : 
+    Request = Request-Line ; Sectoin 5.1 (GET 192.168.1.100/device HTTP/1.1)
+              *((general-header ; Section 4.5 (Accept-Language: en-us)
+               | request-header ; Section 5.2 
+               | entity-header ) CRLF) ; Section 7.1 (<CR><LF>)
+               CRLF
+               [ message-body ] ; Section 4.3 (<CR><LF>)
+
+    Response = Status-Line ; Section 6.1 (HTTP/1.1 200 OK)
+               *(( general-header ; Section 4.5 (Content-Type: application/vnd.api+json)
+                | response-header ; Section 6.2 (Connection: close)
+                | entity-header ) CRLF) ; Section 7.1 (CR><LF>)
+                CRLF
+                [ message-body ] ; Section 7.2 (<JSON PAYLOAD><CR><LF><CR><LF>)
+
+    response :
+      HTTP/1.1 200 OK
+      Content-Type: application/vnd.api + json
+      Connection: close
+      <CR><LF>
+      {"vpd":{"model":"Sandy","manufacturer":"Douglas","serial_number":"_UNASSIGNED","manufacture_date":
+      "01/01/2000","mac_address":"44:4F:55:53:41:4E","country_code":"USA"},"tcrit_hi":1023,"twarn_hi":1022,"t
+      crit_lo":0,"twarn_lo":1,"temperature":75,"state":"NORMAL","log":[{"timestamp":"01/01/2000 
+      00:00:00","event":3},{"timestamp":"01/01/2000 00:00:00","event":4},{"timestamp":"01/01/2000 
+      00:00:00","event":0},{"timestamp":"01/01/2000 00:00:07","event":2},{"timestamp":"01/01/2000 
+      00:00:01","event":3},{"timestamp":"01/01/2000 00:00:00","event":4},{"timestamp":"01/01/2000 
+      00:00:00","event":0}]}
+      <CR><LF>
+
+API Specification : (for the sake of this project specifically just print device and address to represent interactions and simulations between them)
+    > [127.0.0.1] Local Host
+    > [127.0.0.1] DHCP Server
+    > [127.0.0.1] NTP Server
+    > [127.0.0.100] IIoT Device
+    > [192.168.1.x] Development Host
+    > [192.168.1.1] DHCP Server
+    > [192.168.1.1] NTP Server
+    > [192.168.1.y] IIoT Device 
+    > {"vpd":{"model":"Sandy","manufacturer":"Douglas","serial_numbe
+        r":"_UNASSIGNED","manufacture_date":"01/01/2000","mac_addres
+        s":"44:4F:55:53:41:4E","country_code":"USA"},"tcrit_hi":1023
+        ,"twarn_hi":1022,"tcrit_lo":0,"twarn_lo":1,"temperature":75,
+        "state":"NORMAL","log":[{"timestamp":"01/01/2000
+        00:00:00","event":3},{"timestamp":"01/01/2000
+        00:00:00","event":4},{"timestamp":"01/01/2000
+        00:00:00","event":0},{"timestamp":"01/01/2000
+        00:00:07","event":2},{"timestamp":"01/01/2000
+        00:00:01","event":3},{"timestamp":"01/01/2000
+        00:00:00","event":4},{"timestamp":"01/01/2000
+        00:00:00","event":0}]}
+
+Notes & Other : 
+    /* Compare the first bytes of the receive buffer with the specified string.
+     * If they match, the bytes are removed from the buffer and the function returns
+     * a value of 1. Otherwise, the contents of the receive buffer are not altered
+     * and the function returns 0.
+     */
+    unsigned char socket_recv_compare(SOCKET s, const char*str);
+
+    /* send an character to the remote host (not including the terminating null) */
+    void socket_writechar(SOCKET s, const char ch);
+
+    /* send an ascii string to the remote host (not including the terminating null) */
+    void socket_writestr(SOCKET s, const char*str);
+
+    /* send the specified ascii string to the remote host, enclosed in double quote characters */
+    void socket_writequotedstring(SOCKET s, const char*str);
+
+    /* send the specified 8-bit integer to the remote host as a hexadecimal, text representation */
+    void socket_writehex8(SOCKET s, const unsigned char x);
+
+    /* send the specified 16-bit integer to the remote host as hexadecimal, text representation */
+    void socket_writehex16(SOCKET s, const unsigned int x);
+
+    /* send the specified integer to the remote host as a decimal text representation */
+    void socket_writedec32(SOCKET s, int n);
+
+    /* given a RTC date/time number, send a text representation of the date to the remote host */
+    void socket_writedate(SOCKET s, unsigned long datenum);
+
+    /* given a pointer to an array of 6 unsigned characters representing a mac address, send
+     * the text representation consisting of 6 8-bit hexadecimal numbers, separated by colons */
+    void socket_write_macaddress(SOCKET s, unsigned char *mac_address);

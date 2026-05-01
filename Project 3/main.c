@@ -30,7 +30,6 @@
 #include "vpd.h"
 #include "wdt.h"
 
-
 /* global variables */
 int current_temperature = 88;  /* the most recent temperature reading */
 
@@ -41,11 +40,9 @@ int current_temperature = 88;  /* the most recent temperature reading */
 /********************************************************************
 * main()
 *
-* The main function for SER486 project 3. This function implements a
-* control loop design pattern with "RMS" scheduling of a fixed set
-* of tasks in order to provide a temperature sensor endpoint to an
-* industrial IOT system. Ethernet sockets are not yet supported -
-* all transactions are carried out over the uart debug port.
+* main function for SER486 project 3. function implements a
+* control loop design pattern w/ "RMS" scheduling of fixed set #
+* of tasks to provide temperature sensor endpoint to IOT system
 */
 int main(void)
 {
@@ -75,10 +72,6 @@ int main(void)
     /* log the startup event */
     log_add_record(EVENT_STARTUP);
 
-    /* start the first temperature reading and wait 5 seconds before reading again
-    * this long delay ensures that the temperature spike during startup does not
-    * trigger any false alarms.
-    */
     temp_start();
     delay_set(1,5000);
 
@@ -92,10 +85,11 @@ int main(void)
        /* update the led state based on the blink code */
        led_update();
 
-       /* if the temperature sensor delay is done, update the current temperature
+      /* 
+       * if the temperature sensor delay is done, update the current temperature
        * from the temperature sensor, update the temperature sensor finite state
-       * machine (which provides hysteresis) and send any temperature sensor
-       * alarms (from FSM update).
+       * machine ( provides hysteresis) + send any temperature sensor
+       * alarms (from FSM update)
        */
        if (delay_isdone(1)) {
           /* read the temperature sensor */
@@ -107,15 +101,16 @@ int main(void)
           temp_start();
           delay_set(1,1000);
        } else if (connected == 0) {
-          /* if the connection state is 0 (unconnected), wait for the socket to connect */
+          /* if the connection state is 0 (unconnected) wait? */
           if (uartsocket_is_connected()) {
-             /* socket is now connected - print a message to the uart debug port and update our connection status */
+             /* socket connected - print message to uart debug + update our connection status */
              uart_writestr("Connection Established\r\n");
              connected = 1;
           }
        } else if (uartsocket_is_packet_available()) {
-           /* here if we are connected and a packet is available for processing.
-           * Process the packet, update the device state and send the appropriate response to the client
+          /* 
+           * packet available for processing
+           * Process packet, update the device state + send the appropriate response
            */
            parse_and_send_response();
            if (!uartsocket_is_connected()) {

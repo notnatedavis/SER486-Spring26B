@@ -10,12 +10,6 @@
  */
 
 /* ----- Imports ----- */
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "uart.h"
 #include "timer1.h"
 #include "rtc.h"

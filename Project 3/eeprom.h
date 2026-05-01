@@ -17,10 +17,6 @@
 #ifndef EEPROM_H_INCLUDED
 #define EEPROM_H_INCLUDED
 
-/* ----- Imports ----- */
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
 /* ********************************************
  * eeprom_readbuf - blocking read of bytes from EEPROM
  *   args: addr - starting address in EEPROM

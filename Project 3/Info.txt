@@ -1,13 +1,12 @@
 Submission : 
 
     > files : (maybe some from previous + remade comp files)
-        > * tempfsm.c
-        > * tempfsm.h
-        > * util.c
-        > * util.h
+        > * tempfsm.c tempfsm.h
+        > * util.c util.h
         > * process_packet.h
-        > * wdt.c
-        > * wdt.h
+        > * wdt.c wdt.h
+        > * main.c
+        
         > alarm ? uart ? led ?
     > ss Build
     > ss Output

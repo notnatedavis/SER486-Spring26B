@@ -26,13 +26,12 @@
 #include "vpd.h"
 #include "log.h"
 #include "rtc.h"
-#include "uart.h" /* optional, for local debug */
 #include "uartsocket.h"
 #include "eeprom.h"
 #include "tempfsm.h"
 #include "wdt.h"
-#include <stdlib.h> // atoi()
-#include <string.h>  /* for strtok, strcmp, etc. */
+#include <stdlib.h> // atoi() - required
+
 
 /* access the global temperature from main.c */
 extern int current_temperature;
@@ -44,7 +43,7 @@ extern int current_temperature;
  *   args: data array, size in bytes
  *   returns: nothing
  *   behavior: sets the last byte so that sum of all
- *             bytes modulo 256 equals zero.
+ *             bytes modulo 256 equals zero
  */
 void update_checksum(unsigned char *data, unsigned int dsize) {
     unsigned int sum = 0;
@@ -74,7 +73,7 @@ int is_checksum_valid(unsigned char *data, unsigned int dsize) {
  *   args: start address, number of bytes
  *   returns: nothing
  *   behavior: prints 16‑byte lines with address, hex,
- *             and ASCII representation.
+ *             w/ ASCII representation
  */
 void dump_eeprom(unsigned int start_address, unsigned int numbytes) {
     unsigned int addr;
@@ -151,9 +150,9 @@ int update_twarn_lo(int value) {
  * parse_and_send_response – read and handle packet
  *   args: none
  *   returns: nothing
- *   behavior: reads a line from uartsocket, dispatches
+ *   behavior: reads line from uartsocket, dispatches
  *             GET / PUT / DELETE commands, and sends
- *             a JSON response or status message.
+ *             a JSON response or status message
  */
 void parse_and_send_response(void) {
     char buf[128];
@@ -163,10 +162,10 @@ void parse_and_send_response(void) {
         return;
     }
 
-    /* Tokenise the request line */
+    /* request line */
     char *method = strtok(buf, " ");
     char *path   = strtok(NULL, " ");
-    /* ignore HTTP version if present */
+    /* ignore HTTP */
 
     if (!method || !path) {
         uartsocket_writestr("ERROR: malformed request\r\n");
@@ -175,7 +174,7 @@ void parse_and_send_response(void) {
 
     if (strcmp(method, "GET") == 0 && strcmp(path, "/device") == 0) {
         
-        /* Build JSON response */
+        /* build JSON response */
         uartsocket_writestr("{\r\n");
 
         /* VPD block */
@@ -201,7 +200,7 @@ void parse_and_send_response(void) {
         uartsocket_writestr(vpd.country_of_origin);
         uartsocket_writestr("\"\r\n  },\r\n");
 
-        /* Config limits */
+        /* config limits */
         uartsocket_writestr("  \"tcrit_hi\":");
         uartsocket_writedec32(config.hi_alarm);
         uartsocket_writestr(",\r\n");
@@ -218,7 +217,7 @@ void parse_and_send_response(void) {
         uartsocket_writedec32(config.lo_warn);
         uartsocket_writestr(",\r\n");
 
-        /* Current temperature and state */
+        /* current temperature and state */
         uartsocket_writestr("  \"temperature\":");
         uartsocket_writedec32(current_temperature);
         uartsocket_writestr(",\r\n");
@@ -227,7 +226,7 @@ void parse_and_send_response(void) {
         uartsocket_writestr(tempfsm_get_state());
         uartsocket_writestr("\",\r\n");
 
-        /* Log array */
+        /* log array */
         uartsocket_writestr("  \"log\":[\r\n");
         unsigned char num = log_get_num_entries();
         unsigned char i;
@@ -247,7 +246,7 @@ void parse_and_send_response(void) {
         uartsocket_writestr("  ]\r\n}\r\n");
     }
     else if (strcmp(method, "PUT") == 0) {
-        /* Handle PUT /device/config?param=value */
+        /* handle PUT /device/config?param=value */
         char *param_name = strtok(path, "?=");
         char *param_value = strtok(NULL, "=");
         if (!param_name || !param_value) {
@@ -257,10 +256,8 @@ void parse_and_send_response(void) {
         int val = atoi(param_value);
         int err = 1;
         if (strcmp(param_name, "/device/config") == 0) {
-            /* Actually the param is after the '?' */
             param_name = strtok(NULL, ""); // rest of line
         }
-        /* Now determine which config variable */
         if (strncmp(param_name, "tcrit_hi", 8) == 0) {
             err = update_tcrit_hi(val);
         } else if (strncmp(param_name, "twarn_hi", 8) == 0) {

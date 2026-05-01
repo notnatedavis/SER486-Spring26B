@@ -19,35 +19,28 @@
 
 /* ----- Imports ----- */
 #include "wdt.h"
-#include <avr/interrupt.h>
-#include <avr/io.h>
 #include "led.h"
 #include "log.h"
 #include "config.h"
-#include "alarm.h" // not used here  included for completeness 
 
 /* ----- Watchdog timer interrupt vector ----- */
-/* Force the watchdog ISR to be compiled with size optimization (-Os).
- * This ensures the smallest possible code for the critical cache flush sequence. */
 #pragma GCC push_options
 #pragma GCC optimize ("-Os")
 ISR(WDT_vect) {
     /* turn on LED to signal watchdog event */
     led_on();
 
-    /* add the watchdog event to the log (marks it modified) */
+    /* add the watchdog event to log */
     log_add_record(EVENT_WDT);
 
     /* flush caches with interrupts disabled */
     unsigned char i;
-    /* up to 16 calls may be needed to flush the entire log */
-    for (i = 0; i < 16; i++) {
+
+    /* flush log */
+    for (i = 0; i < 25; i++) {
         log_update_noisr();
     }
-    config_update_noisr();   /* first call flushes config if modified */
-
-    /* The watchdog will issue a system reset after the next timeout.
-       The RESET is automatic – no need to stay in the ISR */
+    config_update_noisr();
 }
 #pragma GCC pop_options
 
@@ -58,36 +51,37 @@ ISR(WDT_vect) {
  *   args: none
  *   returns: nothing
  *   behavior: sets WDTCSR to enable WDE, WDIE, and
- *             2 s prescaler (WDP2:0 = 0b111).
+ *             2 s prescale
  */
 void wdt_init(void) {
     cli();   /* disable global interrupts while configuring */
-    WDTCSR = (1 << WDCE) | (1 << WDE);          /* enable change */
-    WDTCSR = (1 << WDE) | (1 << WDIE)           /* interrupt + reset */
-           | (1 << WDP2) | (1 << WDP1) | (1 << WDP0);  /* 2 s */
-    sei();   /* re-enable interrupts */
+    WDTCSR = (1 << WDCE) | (1 << WDE); /* enable change */
+    WDTCSR = (1 << WDE) | (1 << WDIE) /* interrupt + reset */
+           | (1 << WDP2) | (1 << WDP1) | (1 << WDP0); /* 2 s */
+
+    sei(); /* re-enable interrupts */
 }
 
 /********************************************************
- * wdt_reset – feed the watchdog
+ * wdt_reset – feed watchdog
  *   args: none
  *   returns: nothing
- *   behavior: executes the WDR instruction
+ *   behavior: executes WDR instruction
  */
 void wdt_reset(void) {
     __builtin_avr_wdr();
 }
 
 /********************************************************
- * wdt_force_restart – force a system reset via WDT
+ * wdt_force_restart – force system reset via WDT
  *   args: none
  *   returns: nothing (never returns)
- *   behavior: disables WDIE, then spins until reset
+ *   behavior: disables WDIE, spins until reset
  */
 void wdt_force_restart(void) {
     cli();
     WDTCSR = (1 << WDCE) | (1 << WDE);
-    WDTCSR = (1 << WDE)           /* reset enabled, no interrupt */
+    WDTCSR = (1 << WDE) /* reset enabled, no interrupt */
            | (1 << WDP2) | (1 << WDP1) | (1 << WDP0);
     while (1) { /* wait for watchdog timeout */ }
 }

@@ -1,0 +1,15 @@
+Submission : 
+
+    > files : (maybe some from previous + remade comp files)
+        * 
+        
+    > ss Build
+    > ss Output
+    > pdf ?
+    > yt link of demo
+
+Usage : 
+
+    > make clean
+    > make
+    > *simavr -m atmega328p --uart0=stdio -v proj4.elf* update

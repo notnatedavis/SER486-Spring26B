@@ -17,16 +17,15 @@
 #define UTIL_H_INCLUDED
 
 #ifdef __cplusplus
-extern "C" {
+   extern "C" {
 #endif
-
-/* update the checksum (last byte) of data so
-*  sum of all bytes is zero
+/* update the checksum (last byte) of the specifed data so
+* that the sum of all the bytes will be zero
 */
 void update_checksum(unsigned char *data, unsigned int dsize);
 
-/* returns 1 if the sum of all the bytes in the data structure is 0
-* Otherwise, returns 0
+/* returns 1 if the sum of all the bytes in the data structure is 0.
+* Otherwise, returns 0.
 */
 int is_checksum_valid(unsigned char *data, unsigned int dsize);
 
@@ -35,7 +34,7 @@ void dump_eeprom(unsigned int start_address, unsigned int numbytes);
 
 
 #ifdef __cplusplus
-}
+   }
 #endif
 
 #endif // UTIL_H_INCLUDED
