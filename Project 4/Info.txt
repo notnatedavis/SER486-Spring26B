@@ -12,4 +12,4 @@ Usage :
 
     > make clean
     > make
-    > *simavr -m atmega328p --uart0=stdio -v proj4.elf* update
+    > simavr -m atmega328p -f 16000000 --uart0=stdio -v proj4.elf
