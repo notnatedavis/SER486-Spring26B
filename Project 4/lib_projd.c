@@ -31,7 +31,6 @@
 
 #include <avr/io.h>
 #include <string.h>
-#include <stdio.h>
 #include "util.h"
 #include "log.h"
 #include "rtc.h"
@@ -96,7 +95,7 @@ void dump_eeprom(unsigned int start_address, unsigned int numbytes)
 /* ======================== Event Log ======================== */
 
 #define LOG_BASE_ADDR   0x0080
-#define MAX_LOG_ENTRIES 16
+#define MAX_LOG_ENTRIES 8
 
 typedef struct {
     unsigned long timestamp;
@@ -113,13 +112,16 @@ static unsigned char log_modified;   /* at least one entry needs write‑back */
  ********************************************************/
 void log_init(void)
 {
-    /* wait until EEPROM is idle */
     while (eeprom_isbusy());
     eeprom_readbuf(LOG_BASE_ADDR, (unsigned char*)&log_head, 1);
     eeprom_readbuf(LOG_BASE_ADDR+1, (unsigned char*)&log_count, 1);
-    if (log_count > MAX_LOG_ENTRIES) log_count = MAX_LOG_ENTRIES;
-    eeprom_readbuf(LOG_BASE_ADDR+2, (unsigned char*)log_buffer, sizeof(log_buffer));
-    log_modified = 0;
+
+    if (log_head >= MAX_LOG_ENTRIES || log_count > MAX_LOG_ENTRIES) {
+        log_clear();
+    } else {
+        eeprom_readbuf(LOG_BASE_ADDR+2, (unsigned char*)log_buffer, sizeof(log_buffer));
+        log_modified = 0;
+    }
 }
 
 /********************************************************
@@ -166,11 +168,14 @@ void log_clear(void)
  ********************************************************/
 void log_add_record(unsigned char eventnum)
 {
+    /* safety wrap if somehow still out-of-range */
+    if (log_head >= MAX_LOG_ENTRIES)
+        log_head = 0;
+
     log_buffer[log_head].timestamp = rtc_get_date();
     log_buffer[log_head].event = eventnum;
     log_head = (log_head + 1) % MAX_LOG_ENTRIES;
-    if (log_count < MAX_LOG_ENTRIES)
-        log_count++;
+    if (log_count < MAX_LOG_ENTRIES) log_count++;
     log_modified = 1;
 }
 
@@ -246,11 +251,48 @@ char * rtc_get_date_string(void)
 char * rtc_num2datestr(unsigned long num)
 {
     static char buf[20];
-    /* dummy conversion: just print the raw value in a readable way */
-    sprintf(buf, "%02lu/%02lu/%04lu 00:00:00",
-            (num / 86400UL) % 12 + 1,
-            (num / 86400UL) % 28 + 1,
-            2000UL + (num / 86400UL) / 365);
+    unsigned long days = num / 86400UL;
+    unsigned long year = 2000 + days / 365;
+    unsigned long month = (days % 365) / 30 + 1;
+    unsigned long day = (days % 365) % 30 + 1;
+    char *p = buf;
+
+    // Convert month (2 digits)
+    if (month < 10) {
+        *p++ = '0';
+        *p++ = '0' + month;
+    } else {
+        *p++ = '0' + (month / 10);
+        *p++ = '0' + (month % 10);
+    }
+    *p++ = '/';
+
+    // Convert day (2 digits)
+    if (day < 10) {
+        *p++ = '0';
+        *p++ = '0' + day;
+    } else {
+        *p++ = '0' + (day / 10);
+        *p++ = '0' + (day % 10);
+    }
+    *p++ = '/';
+
+    // Convert year (4 digits)
+    // year is between 2000 and ~2100
+    unsigned long y = year;
+    *p++ = '0' + (y / 1000);
+    y %= 1000;
+    *p++ = '0' + (y / 100);
+    y %= 100;
+    *p++ = '0' + (y / 10);
+    *p++ = '0' + (y % 10);
+
+    *p++ = ' ';
+    *p++ = '0'; *p++ = '0'; *p++ = ':';
+    *p++ = '0'; *p++ = '0'; *p++ = ':';
+    *p++ = '0'; *p++ = '0';
+    *p = '\0';
+
     return buf;
 }
 
@@ -259,17 +301,37 @@ char * rtc_num2datestr(unsigned long num)
  * and set the clock accordingly.  Minimal implementation
  * here for demonstration.
  ********************************************************/
+#include <string.h>
+#include <stdlib.h>   /* for atoi */
+
 void rtc_set_by_datestr(char *datestr)
 {
-    int month, day, year, hour, min, sec;
-    if (sscanf(datestr, "%d/%d/%d %d:%d:%d", &month, &day, &year, &hour, &min, &sec) == 6) {
-        /* rough calculation of seconds since 1/1/2000 */
-        unsigned long d = (year - 2000) * 365UL * 86400UL +
-                          (month - 1) * 30UL * 86400UL +
-                          (day - 1) * 86400UL +
-                          hour * 3600UL + min * 60UL + sec;
-        rtc_set_date(d);
-    }
+    /* expected format: "MM/DD/YYYY HH:MM:SS" */
+    char copy[20];
+    strncpy(copy, datestr, 20);
+    copy[19] = '\0';
+
+    char *token;
+    unsigned int month = 0, day = 0, year = 0, hour = 0, minute = 0, second = 0;
+
+    token = strtok(copy, " /:");
+    if (token) month = atoi(token);
+    token = strtok(NULL, " /:");
+    if (token) day   = atoi(token);
+    token = strtok(NULL, " /:");
+    if (token) year  = atoi(token);
+    token = strtok(NULL, " /:");
+    if (token) hour  = atoi(token);
+    token = strtok(NULL, " /:");
+    if (token) minute = atoi(token);
+    token = strtok(NULL, " /:");
+    if (token) second = atoi(token);
+
+    /* Convert to seconds since 01/01/2000 00:00:00 (crude approximation) */
+    unsigned long days = (year - 2000) * 365UL + (month - 1) * 30UL + (day - 1);
+    unsigned long seconds = days * 86400UL + hour * 3600UL + minute * 60UL + second;
+
+    rtc_set_date(seconds);
 }
 
 /* ======================== TCP Socket Simulation ======================== */
@@ -278,7 +340,7 @@ void rtc_set_by_datestr(char *datestr)
 static struct {
     unsigned char state;    /* 0=closed, 1=listening, 2=established */
     unsigned int port;
-    char recv_buf[256];
+    char recv_buf[64];
     unsigned char recv_len;
     unsigned char recv_read_pos;
 } tcp_sock[1];
@@ -323,9 +385,9 @@ unsigned char socket_listen(SOCKET s)
 {
     if (s != 0) return 0;
     if (tcp_sock[s].state == 0) {
-        tcp_sock[s].state = 1;          /* listening */
+        tcp_sock[s].state = 1;
         uart_writestr("TCP socket now in LISTEN mode\r\n");
-        request_injected = 0;
+        // request_injected = 0;   // <-- REMOVE THIS LINE
     }
     return 1;
 }
@@ -536,7 +598,7 @@ int ntp_sync_network_time(unsigned char retries)
 {
     uart_writestr("NTP: synchronizing with server... ");
     /* Simulate successful time set to a known value */
-    rtc_set_by_datestr("04/18/2018 12:00:00");
+    rtc_set_by_datestr("05/03/2026 21:30:00");   // <-- changed
     uart_writestr("time set to ");
     uart_writestr(rtc_get_date_string());
     uart_writestr("\r\n");

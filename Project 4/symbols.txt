@@ -1,0 +1,315 @@
+
+proj4.elf:     file format elf32-avr
+
+SYMBOL TABLE:
+00800100 l    d  .data	00000000 .data
+00000000 l    d  .text	00000000 .text
+008005fe l    d  .bss	00000000 .bss
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .note.gnu.avr.deviceinfo	00000000 .note.gnu.avr.deviceinfo
+00000000 l    d  .avr.prop	00000000 .avr.prop
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    df *ABS*	00000000 main.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00000000 l    df *ABS*	00000000 lib_projd.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+0080065f l     O .bss	00000001 log_head
+0080065e l     O .bss	00000001 log_count
+00800660 l     O .bss	00000028 log_buffer
+0080065d l     O .bss	00000001 log_modified
+00800659 l     O .bss	00000004 rtc_base_time
+008005fe l     O .bss	00000014 buf.1916
+00800614 l     O .bss	00000045 tcp_sock
+00800613 l     O .bss	00000001 request_injected
+00800612 l     O .bss	00000001 udp_open
+0080010c l     O .data	00000004 local_ip
+00800108 l     O .data	00000004 gateway_ip
+00800104 l     O .data	00000004 subnet_mask
+00800100 l     O .data	00000004 dns_ip
+00000000 l    df *ABS*	00000000 alarm.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00000000 l    df *ABS*	00000000 config.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00800110 l     O .data	00000012 defaults
+00800688 l     O .bss	00000001 modified
+00000000 l    df *ABS*	00000000 delay.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00000e0e l     F .text	0000001c delay_init.part.0
+00800689 l     O .bss	00000001 initialized
+0080068e l     O .bss	00000004 count
+0080068a l     O .bss	00000004 limit
+00000000 l    df *ABS*	00000000 eeprom.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00800692 l     O .bss	00000001 write_busy
+00800693 l     O .bss	00000002 writeaddr
+00800696 l     O .bss	00000001 bufidx
+00800695 l     O .bss	00000001 writesize
+00800697 l     O .bss	00000080 writebuf
+00000000 l    df *ABS*	00000000 led.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00800719 l     O .bss	00000002 blink_msg
+00800718 l     O .bss	00000001 pos
+00800717 l     O .bss	00000001 waiting_off
+00000000 l    df *ABS*	00000000 temp.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00000000 l    df *ABS*	00000000 tempfsm.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+0080071b l     O .bss	00000002 state
+00800122 l     O .data	00000010 CSWTCH.6
+00000000 l    df *ABS*	00000000 timer1.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+0080071d l     O .bss	00000004 count
+00000000 l    df *ABS*	00000000 uart.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00800132 l     O .data	00000011 hex.1529
+00000000 l    df *ABS*	00000000 vpd.c
+0000003e l       *ABS*	00000000 __SP_H__
+0000003d l       *ABS*	00000000 __SP_L__
+0000003f l       *ABS*	00000000 __SREG__
+00000000 l       *ABS*	00000000 __tmp_reg__
+00000001 l       *ABS*	00000000 __zero_reg__
+00800143 l     O .data	00000037 defaults
+00000000 l    df *ABS*	00000000 _udivmodsi4.o
+0000196c l       .text	00000000 __udivmodsi4_ep
+00001952 l       .text	00000000 __udivmodsi4_loop
+00000000 l    df *ABS*	00000000 _divmodsi4.o
+000019a8 l       .text	00000000 __divmodsi4_neg2
+000019b6 l       .text	00000000 __divmodsi4_exit
+00000000 l    df *ABS*	00000000 _exit.o
+00001a6a l       .text	00000000 __stop_program
+00000000 l    df *ABS*	00000000 _clear_bss.o
+00000094 l       .text	00000000 .do_clear_bss_start
+00000092 l       .text	00000000 .do_clear_bss_loop
+000002c0 g     F .text	00000016 rtc_init
+00000fd8 g     F .text	00000076 __vector_22
+000005ac g     F .text	00000018 socket_is_listening
+000006b8 g     F .text	0000009a socket_recv_available
+000000a2  w      .text	00000000 __vector_1
+00000362 g     F .text	00000032 rtc_set_date
+00000b3e g     F .text	00000048 dhcp_start
+00000b86 g     F .text	00000006 dhcp_getLocalIp
+00000752 g     F .text	0000004a socket_received_line
+000001c2 g     F .text	00000040 log_update
+00000800 g       *ABS*	00000000 __DATA_REGION_LENGTH__
+00000b9e g     F .text	00000006 dhcp_getDnsServerIp
+00000a5e g     F .text	0000001a udpsocket_open
+00000ba4 g     F .text	00000006 dhcp_checkLease
+00001126 g     F .text	0000014c tempfsm_update
+00000000 g       *ABS*	00000000 __TEXT_REGION_ORIGIN__
+00000c8e g     F .text	00000002 spi_end_transfer
+00000b38 g     F .text	00000006 udpsocket_recv_data
+0000017c g     F .text	00000046 log_init
+00001a58 g       .text	00000000 __mulhi_const_10
+000014a0 g     F .text	0000009e vpd_init
+00000e32 g     F .text	00000016 delay_get
+00000068 g       .text	00000000 __trampolines_start
+00000bd8 g     F .text	00000096 W5x_config
+00001a6c g       .text	00000000 _etext
+00001112 g     F .text	00000010 tempfsm_reset
+000000a2  w      .text	00000000 __vector_24
+00000c76 g     F .text	00000002 wdt_reset
+000000a2  w      .text	00000000 __vector_12
+0000065e g     F .text	00000006 socket_writehex8
+000000a2 g       .text	00000000 __bad_interrupt
+00000636 g     F .text	00000006 socket_writechar
+000012cc g     F .text	00000018 timer1_clear
+00001a2a g     F .text	00000012 memcpy
+00000aaa g     F .text	00000070 udpsocket_sendto
+00000802 g     F .text	00000084 socket_recv
+00000c6e g     F .text	00000008 wdt_init
+00001f6a g       *ABS*	00000000 __data_load_end
+00000dae g     F .text	00000030 config_update
+00800733 g     O .bss	00000037 vpd
+00000e8a g     F .text	0000002e delay_isdone
+00000b92 g     F .text	00000006 dhcp_getSubnetMask
+000000a2  w      .text	00000000 __vector_6
+00000cde g     F .text	00000008 check_for_test_start
+00000c80 g     F .text	00000008 spi_init
+00000c8a g     F .text	00000004 spi_transfer
+00000068 g       .text	00000000 __trampolines_end
+00000682 g     F .text	00000036 socket_write_macaddress
+000000a2  w      .text	00000000 __vector_3
+00000664 g     F .text	00000006 socket_writehex16
+0000056a g     F .text	00000004 socket_disconnect
+00001298 g     F .text	0000001c timer1_init
+000009b2 g     F .text	00000078 socket_recv_compare
+00000a78 g     F .text	0000001a udpsocket_open_multicast
+000000a2  w      .text	00000000 __vector_23
+00001a6c g       *ABS*	00000000 __data_load_start
+00000068 g       .text	00000000 __dtors_end
+0080076a g       .bss	00000000 __bss_end
+00000400 g       *ABS*	00000000 __LOCK_REGION_LENGTH__
+0000104e g     F .text	0000001c led_set_blink
+000000a2  w      .text	00000000 __vector_25
+00000b2c g     F .text	00000006 udpsocket_recv_available
+00001272 g     F .text	00000026 tempfsm_get_state
+000012e4 g     F .text	0000004a __vector_11
+0000024a g     F .text	00000070 log_get_record
+00000068  w      .text	00000000 __init
+00001104 g     F .text	00000006 temp_is_data_ready
+0000063c g     F .text	00000006 socket_writestr
+000010f8 g     F .text	00000002 led_on
+000000a2  w      .text	00000000 __vector_13
+00000f2c g     F .text	00000024 eeprom_readbuf
+000000a2  w      .text	00000000 __vector_17
+000000a2  w      .text	00000000 __vector_19
+00000fd0 g     F .text	00000008 eeprom_isbusy
+00000a92 g     F .text	00000006 udpsocket_close
+000000a2  w      .text	00000000 __vector_7
+0000106a g     F .text	0000008c led_update
+000007d0 g     F .text	00000032 socket_is_blank_line
+0000132e g     F .text	00000018 uart_init
+0000008a g       .text	00000010 .hidden __do_clear_bss
+00810000 g       .comment	00000000 __eeprom_end
+000013a6 g     F .text	000000ae uart_writedec32
+0000110a g     F .text	00000002 temp_start
+00000bd0 g     F .text	00000008 W5x_init
+00000000 g       .text	00000000 __vectors
+00000faa g     F .text	00000026 eeprom_writebuf_noisr
+00000d04 g     F .text	000000aa config_init
+00001a3c g     F .text	0000001c strncmp
+000000f0 g     F .text	0000008c dump_eeprom
+008005fe g       .data	00000000 __data_end
+00000000  w      .text	00000000 __vector_default
+000000a2  w      .text	00000000 __vector_5
+00001a10 g     F .text	0000001a memcmp
+00000400 g       *ABS*	00000000 __SIGNATURE_REGION_LENGTH__
+000019c8 g       .text	0000000c .hidden __tablejump2__
+00000e48 g     F .text	00000042 delay_set
+000000a6 g     F .text	00000026 update_checksum
+00000068 g       .text	00000000 __ctors_start
+00000074 g       .text	00000016 .hidden __do_copy_data
+00000a9e g     F .text	0000000c udpsocket_is_closed
+00000502 g     F .text	00000008 rtc_get_date_string
+00001454 g     F .text	0000004c uart_writeip
+00000e2a g     F .text	00000008 delay_reinit
+00001394 g     F .text	00000012 uart_writehex16
+008005fe g       .bss	00000000 __bss_start
+0000056e g     F .text	00000026 socket_listen
+0000153e g     F .text	00000408 main
+00000c78 g     F .text	00000008 wdt_force_restart
+000000a2  w      .text	00000000 __vector_4
+00800100 g       *ABS*	00000000 __DATA_REGION_ORIGIN__
+00000554 g     F .text	00000016 socket_close
+00001354 g     F .text	00000018 uart_writestr
+000019b8 g       .text	00000010 .hidden __negsi2
+0000050c g     F .text	00000044 socket_open
+00000b32 g     F .text	00000006 udpsocket_recvfrom
+0000066a g     F .text	0000000c socket_writedec32
+00001122 g     F .text	00000004 tempfsm_init
+00000000  w      *ABS*	00000000 __heap_end
+000000a2  w      .text	00000000 __vector_9
+00000a98 g     F .text	00000006 udpsocket_is_open
+00000dde g     F .text	00000028 config_update_noisr
+00000886 g     F .text	0000012c socket_recv_int
+000000a2  w      .text	00000000 __vector_2
+000002fc g     F .text	00000066 log_add_record
+00000202 g     F .text	00000038 log_update_noisr
+00000400 g       *ABS*	00000000 __USER_SIGNATURE_REGION_LENGTH__
+00000c88 g     F .text	00000002 spi_begin_transfer
+00000b26 g     F .text	00000006 udpsocket_send_datagram
+000010fa g     F .text	00000002 led_off
+00000550 g     F .text	00000004 socket_connect
+00000b1a g     F .text	00000006 udpsocket_start_datagram
+000000a2  w      .text	00000000 __vector_21
+000000a2  w      .text	00000000 __vector_15
+0000023a g     F .text	00000010 log_clear
+00000c90 g     F .text	0000004e signature_set
+00000b20 g     F .text	00000006 udpsocket_add_to_datagram
+000002d6 g     F .text	00000026 rtc_get_date
+000010f6 g     F .text	00000002 led_init
+00000394 g     F .text	0000016e rtc_num2datestr
+000005dc g     F .text	00000016 socket_is_closed
+0000050a g     F .text	00000002 rtc_set_by_datestr
+00000068 g       .text	00000000 __dtors_start
+00000068 g       .text	00000000 __ctors_end
+0000198a g       .text	0000002e .hidden __divmodsi4
+000008ff  w      *ABS*	00000000 __stack
+008005fe g       .data	00000000 _edata
+000010fc g     F .text	00000006 led_is_on
+0080076a g       .comment	00000000 _end
+0000136c g     F .text	00000028 uart_writehex8
+000000a2  w      .text	00000000 __vector_8
+00000676 g     F .text	0000000c socket_writedate
+00000f50 g     F .text	0000005a eeprom_writebuf
+00001a68  w      .text	00000000 .hidden exit
+000002ba g     F .text	00000006 log_get_num_entries
+00001946 g       .text	00000044 .hidden __udivmodsi4
+00000b98 g     F .text	00000006 dhcp_getDhcpServerIp
+00000594 g     F .text	00000018 socket_is_active
+000019d4 g     F .text	0000003c atoi
+00000baa g     F .text	00000026 ntp_sync_network_time
+00000400 g       *ABS*	00000000 __EEPROM_REGION_LENGTH__
+00001a68 g       .text	00000000 .hidden _exit
+00000eb8 g     F .text	00000074 __vector_14
+00000a2a g     F .text	00000034 socket_flush_line
+00000ce8 g     F .text	0000001c alarm_send
+00000b8c g     F .text	00000006 dhcp_getGatewayIp
+00000ce6 g     F .text	00000002 alarm_init
+000000a2  w      .text	00000000 __vector_10
+00000e06 g     F .text	00000008 config_set_modified
+000000cc g     F .text	00000024 is_checksum_valid
+000005f2 g     F .text	00000044 socket_send
+000000a2  w      .text	00000000 __vector_16
+00800100 g       .data	00000000 __data_start
+000000a2  w      .text	00000000 __vector_18
+0000110c g     F .text	00000006 temp_get
+00000003 g       *ABS*	00000000 __FUSE_REGION_LENGTH__
+000012b4 g     F .text	00000018 timer1_get
+00008000 g       *ABS*	00000000 __TEXT_REGION_LENGTH__
+00000642 g     F .text	0000001c socket_writequotedstring
+000000a2  w      .text	00000000 __vector_20
+00001346 g     F .text	0000000e uart_writechar
+0000079c g     F .text	00000034 socket_peek
+00800721 g     O .bss	00000012 config
+00001102 g     F .text	00000002 temp_init
+000005c4 g     F .text	00000018 socket_is_established
+
+

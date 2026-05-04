@@ -1,5 +1,4 @@
-SRCS = main.c lib_projd.c alarm.c config.c delay.c eeprom.c led.c temp.c tempfsm.c timer1.c uart.c
-# add uartsocket.c if you keep it
+SRCS = main.c lib_projd.c alarm.c config.c delay.c eeprom.c led.c temp.c tempfsm.c timer1.c uart.c vpd.c
 OBJS = $(SRCS:.c=.o)
 
 proj4.elf: $(OBJS)

@@ -17,9 +17,11 @@
 
 /* ----- Imports ----- */
 #include "eeprom.h"
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 /* ----- Defines ----- */
-#define BUFSIZE 256
+#define BUFSIZE 128 //overflow
 
 /* ----- Internal state ----- */
 static unsigned char writebuf[BUFSIZE];
@@ -113,7 +115,7 @@ void eeprom_writebuf_noisr(unsigned int addr, unsigned char *buf, unsigned char 
  *   returns: 1 if write_busy is 1, else 0
  *   behavior: returns current state of write_busy flag
  */
-unsigned char eeprom_isbusy(void) {
+int eeprom_isbusy(void) {
     return write_busy;
 }
 

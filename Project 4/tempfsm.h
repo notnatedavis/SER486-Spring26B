@@ -22,6 +22,9 @@ void tempfsm_update(int current, int hicrit, int hiwarn, int locrit, int lowarn)
 /* reset the state machine to the initial state (normal) */
 void tempfsm_reset();
 
+/* return the current state as a string */
+const char* tempfsm_get_state(void);
+
 /* initialize the finite state machine */
 void tempfsm_init();
 

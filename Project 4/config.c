@@ -20,6 +20,7 @@
 #include "config.h"
 #include "eeprom.h"
 #include "util.h"
+#include <string.h>
 
 /* ----- Defined ----- */
 #define CONFIG_BASE_ADDR 0x0040

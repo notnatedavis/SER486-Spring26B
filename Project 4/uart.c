@@ -48,7 +48,7 @@ void uart_writechar(char ch)
 /********************************************************
  * uart_writestr – transmit a null‑terminated string.
  ********************************************************/
-void uart_writestr(char *str)
+void uart_writestr(const char *str)
 {
     while (*str) {
         uart_writechar(*str++);
